@@ -46,7 +46,7 @@ class State:
 KEYWORDS = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
 digit = "0123456789"
 letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-symbol = ";:,[](){}+-=<"
+symbol = ";:,[](){}+-<"
 whitesapce = " \r\r\v\f\n\t"
 EOF = ''
 
@@ -111,10 +111,13 @@ class Scanner:
             else:
                 file.write("There is no lexical error.")
 
-    def add_error(self, line_number, error_message, token):
-        self.errors.append(f"{line_number}.  ({token}, {error_message})")
+    def add_error(self, line_number, error_message, token, trash):
+        if len(self.errors) != 0 and int(self.errors[-1].split('.')[0]) == line_number:
+            self.errors[-1] += f" ({token + trash}, {error_message})"
+        else:
+            self.errors.append(f"{line_number}.{' ': ^3}({token + trash}, {error_message})")
 
-    def is_number_valid(self, current_token):
+    def is_number_invalid(self, current_token):
         return re.search(r"^\d", current_token) is not None
 
     def get_next_token(self):
@@ -129,10 +132,14 @@ class Scanner:
                 current_char = self.input_text[line_index][index]
                 if current_char == '':
                     break
+                trash = ""
+                if line_index == 5:
+                    print('fuck')
                 for chars, state in current_state.transitions:
                     if current_char in chars or chars == '#':
-                        if self.is_number_valid(current_token) and current_char in letter:
-                            index += 1
+                        if self.is_number_invalid(current_token) and current_char in letter:
+                            # index += 1
+                            trash += current_char
                             continue
                         current_state = state
                         if current_state.go_back:
@@ -141,12 +148,13 @@ class Scanner:
                             current_token += self.input_text[line_index][index]
                         break
                 else:
-                    current_state, current_token = self.handle_adding_error(current_token, line_index + 1, False, False)
+                    trash = trash if trash else current_char
+                    current_state, current_token = self.handle_adding_error(current_token, line_index + 1, False, False, trash)
                 index += 1
                 if current_state.is_accepting:
                     if current_state.number == 19:
                         current_state, current_token = self.handle_adding_error(current_token, line_index + 1, True,
-                                                                                False)
+                                                                                False, trash)
                     else:
                         current_state, current_token = self.handle_adding_token(current_state, current_token,
                                                                                 result_per_line)
@@ -161,18 +169,18 @@ class Scanner:
             self.handle_adding_error(current_token, comment_start, False, True)
         self.write_results_to_file(total_result, self.symbol_table_str, self.errors)
 
-    def handle_adding_error(self, current_token, line_index, is_bad, unclosed):
-        if self.is_number_valid(current_token):
-            self.add_error(line_index, "Invalid number", current_token)
+    def handle_adding_error(self, current_token, line_index, is_bad, unclosed, trash):
+        if self.is_number_invalid(current_token):
+            self.add_error(line_index, "Invalid number", current_token, trash)
         elif is_bad:
-            self.add_error(line_index, "Unmatched comment", current_token)
+            self.add_error(line_index, "Unmatched comment", current_token, trash)
         elif unclosed:
             if len(current_token) < 7:
-                self.add_error(line_index, "Unclosed comment", current_token)
+                self.add_error(line_index, "Unclosed comment", current_token, trash)
             else:
-                self.add_error(line_index, "Unclosed comment", current_token[:7] + "...")
+                self.add_error(line_index, "Unclosed comment", current_token[:7] + "...", trash)
         else:
-            self.add_error(line_index, "Invalid input", current_token)
+            self.add_error(line_index, "Invalid input", current_token, trash)
         current_state = self.states[0]
         current_token = ""
         return current_state, current_token
