@@ -42,11 +42,20 @@ class State:
 # f is used to represent EOF
 # TODO when input ends report EOF to the scanner
 # TODO between some tokens there must be whitespace 125d
+KEYWORDS = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
+
+
 class Scanner:
 
     def __init__(self, input_text):
         self.input_text = input_text
         self.states = self.build_states()
+        self.symbol_table = []
+        self.symbol_table_str = []
+
+    def add_to_symbol_table(self, keyword_or_identifier):
+        self.symbol_table.append((len(self.symbol_table), keyword_or_identifier))
+        self.symbol_table_str.append(f"{len(self.symbol_table)}: {keyword_or_identifier}")
 
     def build_states(self):
         NUMBER_OF_STATES = 17
@@ -80,26 +89,41 @@ class Scanner:
                 states[state_number].go_back = True
         return states
 
+    def write_results_to_file(self, tokens, symbol_table):
+        with open("tokens.txt", "w") as file:
+            file.write("\n".join(tokens))
+        with open("symbol_table.txt", "w") as file:
+            file.write('\n'.join(symbol_table))
+
     def get_next_token(self):
         current_state = self.states[0]
         current_token = ""
-        index = 0
-        result = []
-        while index < len(self.input_text):
-            if self.input_text[index] == '':
-                break
-            for chars, state in current_state.transitions:
-                if self.input_text[index] in chars or chars == '#':
-                    current_state = state
-                    if current_state.go_back:
-                        index -= 1
-                    else:
-                        current_token += self.input_text[index]
+        total_result = []
+        for line_index in range(len(self.input_text)):
+            index = 0
+            result_per_line = []
+            while index < len(self.input_text[line_index]):
+                if self.input_text[line_index][index] == '':
                     break
-            index += 1
-            if current_state.is_accepting:
-                result.append((current_token, current_state.token_type))
-                current_state = self.states[0]
-                current_token = ""
+                for chars, state in current_state.transitions:
+                    if self.input_text[line_index][index] in chars or chars == '#':
+                        current_state = state
+                        if current_state.go_back:
+                            index -= 1
+                        else:
+                            current_token += self.input_text[line_index][index]
+                        break
+                index += 1
+                if current_state.is_accepting:
+                    token_type = current_state.token_type
+                    if current_state.token_type == "ID":
+                        self.add_to_symbol_table(current_token)
+                        if current_token in KEYWORDS:
+                            token_type = "KEYWORD"
+                    if token_type != "WHITESPACE":
+                        result_per_line.append((current_token, token_type))
+                    current_state = self.states[0]
+                    current_token = ""
+            total_result.append(f"{line_index + 1}: {result_per_line}")
 
-        print(result)
+        self.write_results_to_file(total_result, self.symbol_table_str)
