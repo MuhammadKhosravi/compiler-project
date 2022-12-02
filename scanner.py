@@ -1,4 +1,3 @@
-import re
 
 
 class State:
@@ -107,7 +106,7 @@ class Scanner:
             self.errors.append(f"{line_number}.\t({token + trash}, {error_message})")
 
     def is_number_invalid(self, current_token):
-        return re.search(r"^\d", current_token) is not None
+        return len(current_token) != 0 and current_token[0] in digit
 
     def get_next_token(self):
         current_state = self.states[0]
