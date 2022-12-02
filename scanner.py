@@ -49,6 +49,7 @@ letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 symbol = ";:,[](){}+-<"
 whitesapce = " \r\r\v\f\n\t"
 EOF = ''
+Allowed = digit + letter + symbol + whitesapce + EOF
 
 
 class Scanner:
@@ -69,7 +70,7 @@ class Scanner:
                 first_time = False
         if first_time:
             self.symbol_table.append((len(self.symbol_table), keyword_or_identifier))
-            self.symbol_table_str.append(f"{len(self.symbol_table)}: {keyword_or_identifier}")
+            self.symbol_table_str.append(f"{len(self.symbol_table)}.\t{keyword_or_identifier}")
 
     def build_states(self):
         NUMBER_OF_STATES = 20
@@ -101,6 +102,7 @@ class Scanner:
 
     def write_results_to_file(self, tokens, symbol_table, errors):
         tokens.append('')
+        errors.append('')
         with open("tokens.txt", "w") as file:
             file.write("\n".join(tokens))
         with open("symbol_table.txt", "w") as file:
@@ -113,9 +115,9 @@ class Scanner:
 
     def add_error(self, line_number, error_message, token, trash):
         if len(self.errors) != 0 and int(self.errors[-1].split('.')[0]) == line_number:
-            self.errors[-1] += f" ({token + trash}, {error_message})"
+            self.errors[-1] += f"({token + trash}, {error_message})"
         else:
-            self.errors.append(f"{line_number}.{' ': ^3}({token + trash}, {error_message})")
+            self.errors.append(f"{line_number}.\t({token + trash}, {error_message}) ")
 
     def is_number_invalid(self, current_token):
         return re.search(r"^\d", current_token) is not None
@@ -133,8 +135,6 @@ class Scanner:
                 if current_char == '':
                     break
                 trash = ""
-                if line_index == 5:
-                    print('fuck')
                 for chars, state in current_state.transitions:
                     if current_char in chars or chars == '#':
                         if self.is_number_invalid(current_token) and current_char in letter:
@@ -143,21 +143,28 @@ class Scanner:
                             continue
                         current_state = state
                         if current_state.go_back:
-                            index -= 1
+                            if current_state.number in [2, 4, 7] and current_char not in Allowed:
+                                trash = current_char
+                                continue
+                            else:
+                                index -= 1
                         else:
                             current_token += self.input_text[line_index][index]
+
                         break
                 else:
                     trash = trash if trash else current_char
-                    current_state, current_token = self.handle_adding_error(current_token, line_index + 1, False, False, trash)
+                    current_state, current_token = self.handle_adding_error(current_token, line_index + 1, False, False,
+                                                                            trash)
                 index += 1
                 if current_state.is_accepting:
                     if current_state.number == 19:
                         current_state, current_token = self.handle_adding_error(current_token, line_index + 1, True,
                                                                                 False, trash)
                     else:
-                        current_state, current_token = self.handle_adding_token(current_state, current_token,
-                                                                                result_per_line)
+                        if current_state.token_type != 'COMMENT':
+                            current_state, current_token = self.handle_adding_token(current_state, current_token,
+                                                                                    result_per_line)
             if current_state.number == 13:
                 comment_start = line_index
             str_result_line = ""
@@ -166,7 +173,7 @@ class Scanner:
             if str_result_line != '':
                 total_result.append(f"{line_index + 1}.\t{str_result_line}")
         if current_state.number == 13:
-            self.handle_adding_error(current_token, comment_start, False, True)
+            self.handle_adding_error(current_token, comment_start, False, True, '')
         self.write_results_to_file(total_result, self.symbol_table_str, self.errors)
 
     def handle_adding_error(self, current_token, line_index, is_bad, unclosed, trash):
@@ -196,3 +203,4 @@ class Scanner:
         current_state = self.states[0]
         current_token = ""
         return current_state, current_token
+# TODO WE CAN not use regex
