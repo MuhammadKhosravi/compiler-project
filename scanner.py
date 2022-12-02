@@ -71,7 +71,7 @@ class Scanner:
                              {9: 13, 13: 14, 0: 17},  # for *
                              {0: 9, 9: 11, 14: 15, 17: 19},  # for /
                              {11: 12},  # for \n
-                             {1: 2, 3: 4, 6: 7, 13: 13, 11: 11, 9: 10, 17: 18},  # for other
+                             {1: 2, 3: 4, 6: 7, 13: 13, 11: 11, 9: 10, 17: 18, 14: 13},  # for other
                              {11: 12}]  # for EOF
         for char, states_tran in zip(characters, states_transition):
             for first, second in states_tran.items():
@@ -89,12 +89,13 @@ class Scanner:
 
     def write_results_to_file(self, tokens, symbol_table, errors):
         tokens.append('')
+        errors.append('')
         with open("tokens.txt", "w") as file:
             file.write("\n".join(tokens))
         with open("symbol_table.txt", "w") as file:
             file.write('\n'.join(symbol_table))
         with open('lexical_errors.txt', "w") as file:
-            if len(errors) > 0:
+            if len(errors) > 1:
                 file.write('\n'.join(errors))
             else:
                 file.write("There is no lexical error.")
