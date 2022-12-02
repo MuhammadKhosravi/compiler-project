@@ -58,6 +58,8 @@ class Scanner:
         self.states = self.build_states()
         self.symbol_table = []
         self.symbol_table_str = []
+        for key_word in KEYWORDS:
+            self.add_to_symbol_table(key_word)
         self.errors = []
 
     def add_to_symbol_table(self, keyword_or_identifier):
@@ -98,6 +100,7 @@ class Scanner:
         return states
 
     def write_results_to_file(self, tokens, symbol_table, errors):
+        tokens.append('')
         with open("tokens.txt", "w") as file:
             file.write("\n".join(tokens))
         with open("symbol_table.txt", "w") as file:
@@ -149,7 +152,11 @@ class Scanner:
                                                                                 result_per_line)
             if current_state.number == 13:
                 comment_start = line_index
-            total_result.append(f"{line_index + 1}: {result_per_line}")
+            str_result_line = ""
+            for token in result_per_line:
+                str_result_line += '(' + token[0] + ', ' + token[1] + ') '
+            if str_result_line != '':
+                total_result.append(f"{line_index + 1}.\t{str_result_line}")
         if current_state.number == 13:
             self.handle_adding_error(current_token, comment_start, False, True)
         self.write_results_to_file(total_result, self.symbol_table_str, self.errors)
@@ -177,7 +184,7 @@ class Scanner:
             if current_token in KEYWORDS:
                 token_type = "KEYWORD"
         if token_type != "WHITESPACE":
-            result_per_line.append((current_token, token_type))
+            result_per_line.append((token_type, current_token))
         current_state = self.states[0]
         current_token = ""
         return current_state, current_token
