@@ -1,2 +1,5 @@
 __pycache__/*
 .idea
+lexical_errors.txt
+symbol_table.txt
+tokens.txt
