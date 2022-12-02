@@ -1,6 +1,6 @@
 from scanner import Scanner
 # Set this variable to empty string before submitting the answer
-INPUT_PATH_PREFIX = "./test/T02/"
+INPUT_PATH_PREFIX = "./test/T15/"
 
 # INPUT_PATH_PREFIX = ""
 
@@ -9,6 +9,6 @@ if __name__ == "__main__":
     with open(INPUT_PATH_PREFIX+'input.txt', 'r') as file:
         input_string = file.readlines()
         scanner = Scanner(input_string)
-        # This line is for test purposes
+        #This line is for test purposes
         scanner.get_next_token()
 
