@@ -158,7 +158,7 @@ class Scanner:
                             current_state = self.states[0]
 
             if current_state.number == 13 and comment_start == 0:
-                comment_start = line_index
+                comment_start = line_index + 1
             str_result_line = ""
             for token in result_per_line:
                 str_result_line += '(' + token[0] + ', ' + token[1] + ') '
