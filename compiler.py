@@ -1,6 +1,7 @@
 from scanner import Scanner
 # Set this variable to empty string before submitting the answer
-INPUT_PATH_PREFIX = "./test/T01/"
+INPUT_PATH_PREFIX = "./test/T02/"
+
 # INPUT_PATH_PREFIX = ""
 
 if __name__ == "__main__":

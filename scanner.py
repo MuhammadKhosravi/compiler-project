@@ -1,3 +1,6 @@
+import re
+
+
 class State:
     def __init__(self, number):
         self.number = number
@@ -43,6 +46,11 @@ class State:
 # TODO when input ends report EOF to the scanner
 # TODO between some tokens there must be whitespace 125d
 KEYWORDS = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
+digit = "0123456789"
+letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+symbol = ";:,[](){}+-*=<"
+whitesapce = " \r\r\v\f\n\t"
+EOF = ''
 
 
 class Scanner:
@@ -52,6 +60,7 @@ class Scanner:
         self.states = self.build_states()
         self.symbol_table = []
         self.symbol_table_str = []
+        self.errors = []
 
     def add_to_symbol_table(self, keyword_or_identifier):
         self.symbol_table.append((len(self.symbol_table), keyword_or_identifier))
@@ -60,11 +69,7 @@ class Scanner:
     def build_states(self):
         NUMBER_OF_STATES = 17
         states = [State(i) for i in range(NUMBER_OF_STATES)]
-        digit = "0123456789"
-        letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        symbol = ";:,[](){}+-*=<"
-        whitesapce = " \r\r\v\f"
-        EOF = ''
+
         characters = [digit, letter, symbol, '=', whitesapce, '*', '/', '\n', '#', EOF]
         states_transition = [{0: 1, 1: 1, 3: 3},  # for digit
                              {0: 3, 3: 3},  # for letter
@@ -89,11 +94,19 @@ class Scanner:
                 states[state_number].go_back = True
         return states
 
-    def write_results_to_file(self, tokens, symbol_table):
+    def write_results_to_file(self, tokens, symbol_table, errors):
         with open("tokens.txt", "w") as file:
             file.write("\n".join(tokens))
         with open("symbol_table.txt", "w") as file:
             file.write('\n'.join(symbol_table))
+        with open('lexical_errors.txt', "w") as file:
+            file.write('\n'.join(errors))
+
+    def add_error(self, line_number, error_message):
+        self.errors.append(f"{line_number}: {error_message}")
+
+    def is_number_valid(self, current_token):
+        return re.search("^\d", current_token) is not None
 
     def get_next_token(self):
         current_state = self.states[0]
@@ -103,27 +116,47 @@ class Scanner:
             index = 0
             result_per_line = []
             while index < len(self.input_text[line_index]):
-                if self.input_text[line_index][index] == '':
+                current_char = self.input_text[line_index][index]
+                if current_char == '':
                     break
                 for chars, state in current_state.transitions:
-                    if self.input_text[line_index][index] in chars or chars == '#':
+                    if current_char in chars or chars == '#':
+                        if self.is_number_valid(current_token) and current_char in letter:
+                            index += 1
+                            continue
                         current_state = state
                         if current_state.go_back:
                             index -= 1
                         else:
                             current_token += self.input_text[line_index][index]
                         break
+                else:
+                    current_state, current_token = self.handle_adding_error(current_token, line_index)
                 index += 1
                 if current_state.is_accepting:
-                    token_type = current_state.token_type
-                    if current_state.token_type == "ID":
-                        self.add_to_symbol_table(current_token)
-                        if current_token in KEYWORDS:
-                            token_type = "KEYWORD"
-                    if token_type != "WHITESPACE":
-                        result_per_line.append((current_token, token_type))
-                    current_state = self.states[0]
-                    current_token = ""
+                    current_state, current_token = self.handle_adding_token(current_state, current_token,
+                                                                            result_per_line)
             total_result.append(f"{line_index + 1}: {result_per_line}")
 
-        self.write_results_to_file(total_result, self.symbol_table_str)
+        self.write_results_to_file(total_result, self.symbol_table_str, self.errors)
+
+    def handle_adding_error(self, current_token, line_index):
+        if self.is_number_valid(current_token):
+            self.add_error(line_index, "Invalid number")
+        else:
+            self.add_error(line_index, "Invalid input")
+        current_state = self.states[0]
+        current_token = ""
+        return current_state, current_token
+
+    def handle_adding_token(self, current_state, current_token, result_per_line):
+        token_type = current_state.token_type
+        if current_state.token_type == "ID":
+            self.add_to_symbol_table(current_token)
+            if current_token in KEYWORDS:
+                token_type = "KEYWORD"
+        if token_type != "WHITESPACE":
+            result_per_line.append((current_token, token_type))
+        current_state = self.states[0]
+        current_token = ""
+        return current_state, current_token
