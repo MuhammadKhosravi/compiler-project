@@ -5,16 +5,12 @@ class State:
     def __init__(self, number):
         self.number = number
         self.transitions = []
-        # self.next_states = []
-        # self.characters = []
         self.token_type = None
         self.is_accepting = False
         self.go_back = False
 
     def add_transition(self, next_state, character):
         self.transitions.append((character, next_state))
-        # self.next_states.append(next_state)
-        # self.characters.append(character)
 
     def set_accepting(self, token_type):
         self.is_accepting = True
@@ -33,23 +29,14 @@ class State:
         return str(self)
 
 
-# d is used to represent digit
-# l is used to represent letter
-# s is used to represent symbol
-# = is used to represent =
-# w is used to represent whitespace
-# * is used to represent *
-# /  is used to represent
-# n is used to represent \n
 # # is used to represent other
-# f is used to represent EOF
 KEYWORDS = ["if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"]
 digit = "0123456789"
 letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 symbol = ";:,[](){}+-<"
 whitesapce = " \r\r\v\f\n\t"
 EOF = ''
-Allowed = digit + letter + symbol + whitesapce + EOF
+Allowed = digit + letter + symbol + whitesapce + EOF + "=*/"
 
 
 class Scanner:
@@ -102,7 +89,6 @@ class Scanner:
 
     def write_results_to_file(self, tokens, symbol_table, errors):
         tokens.append('')
-        errors.append('')
         with open("tokens.txt", "w") as file:
             file.write("\n".join(tokens))
         with open("symbol_table.txt", "w") as file:
@@ -115,9 +101,9 @@ class Scanner:
 
     def add_error(self, line_number, error_message, token, trash):
         if len(self.errors) != 0 and int(self.errors[-1].split('.')[0]) == line_number:
-            self.errors[-1] += f"({token + trash}, {error_message})"
+            self.errors[-1] += f" ({token + trash}, {error_message})"
         else:
-            self.errors.append(f"{line_number}.\t({token + trash}, {error_message}) ")
+            self.errors.append(f"{line_number}.\t({token + trash}, {error_message})")
 
     def is_number_invalid(self, current_token):
         return re.search(r"^\d", current_token) is not None
@@ -138,7 +124,6 @@ class Scanner:
                 for chars, state in current_state.transitions:
                     if current_char in chars or chars == '#':
                         if self.is_number_invalid(current_token) and current_char in letter:
-                            # index += 1
                             trash += current_char
                             continue
                         current_state = state
@@ -155,17 +140,23 @@ class Scanner:
                 else:
                     trash = trash if trash else current_char
                     current_state, current_token = self.handle_adding_error(current_token, line_index + 1, False, False,
-                                                                            trash)
+                                                                            trash, comment_start)
                 index += 1
                 if current_state.is_accepting:
                     if current_state.number == 19:
                         current_state, current_token = self.handle_adding_error(current_token, line_index + 1, True,
-                                                                                False, trash)
+                                                                                False, trash, comment_start)
                     else:
                         if current_state.token_type != 'COMMENT':
                             current_state, current_token = self.handle_adding_token(current_state, current_token,
                                                                                     result_per_line)
-            if current_state.number == 13:
+                        elif current_token.startswith("//"):
+                            current_state = self.states[0]
+                        elif current_token.endswith("*/"):
+                            current_token = ''
+                            current_state = self.states[0]
+
+            if current_state.number == 13 and comment_start == 0:
                 comment_start = line_index
             str_result_line = ""
             for token in result_per_line:
@@ -173,10 +164,10 @@ class Scanner:
             if str_result_line != '':
                 total_result.append(f"{line_index + 1}.\t{str_result_line}")
         if current_state.number == 13:
-            self.handle_adding_error(current_token, comment_start, False, True, '')
+            self.handle_adding_error(current_token, comment_start, False, True, '', comment_start)
         self.write_results_to_file(total_result, self.symbol_table_str, self.errors)
 
-    def handle_adding_error(self, current_token, line_index, is_bad, unclosed, trash):
+    def handle_adding_error(self, current_token, line_index, is_bad, unclosed, trash, comment_start):
         if self.is_number_invalid(current_token):
             self.add_error(line_index, "Invalid number", current_token, trash)
         elif is_bad:
@@ -187,7 +178,10 @@ class Scanner:
             else:
                 self.add_error(line_index, "Unclosed comment", current_token[:7] + "...", trash)
         else:
-            self.add_error(line_index, "Invalid input", current_token, trash)
+            if current_token.startswith("/*") and current_token.endswith("*"):
+                self.add_error(comment_start, "Unclosed comment", current_token[:7] + "...", trash)
+            else:
+                self.add_error(line_index, "Invalid input", current_token, trash)
         current_state = self.states[0]
         current_token = ""
         return current_state, current_token
