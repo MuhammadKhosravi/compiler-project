@@ -1,8 +1,8 @@
 from scanner import Scanner
 # Set this variable to empty string before submitting the answer
-#INPUT_PATH_PREFIX = "./test/T11/"
+INPUT_PATH_PREFIX = "./test/T01/"
 
-INPUT_PATH_PREFIX = ""
+#INPUT_PATH_PREFIX = ""
 
 # Muhammad Khosravi 99105407
 # Arash Fattani Farshbaf 99101965
@@ -12,5 +12,18 @@ if __name__ == "__main__":
         input_string = file.readlines()
         scanner = Scanner(input_string)
         #This line is for test purposes
-        scanner.get_next_token()
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
+        print(scanner.get_next_token())
 

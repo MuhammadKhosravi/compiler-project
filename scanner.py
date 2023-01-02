@@ -1,5 +1,3 @@
-
-
 class State:
     def __init__(self, number):
         self.number = number
@@ -48,6 +46,8 @@ class Scanner:
         for key_word in KEYWORDS:
             self.add_to_symbol_table(key_word)
         self.errors = []
+        self.current_line_index = (0, 0)
+        self.current_comment_start = 0
 
     def add_to_symbol_table(self, keyword_or_identifier):
         first_time = True
@@ -112,9 +112,10 @@ class Scanner:
         current_state = self.states[0]
         current_token = ""
         total_result = []
-        comment_start = 0
-        for line_index in range(len(self.input_text)):
-            index = 0
+        comment_start = self.current_comment_start
+        current_line_index, index = self.current_line_index
+
+        for line_index in range(current_line_index, len(self.input_text)):
             result_per_line = []
             while index < len(self.input_text[line_index]):
                 current_char = self.input_text[line_index][index]
@@ -141,15 +142,21 @@ class Scanner:
                     trash = trash if trash else current_char
                     current_state, current_token = self.handle_adding_error(current_token, line_index + 1, False, False,
                                                                             trash, comment_start)
+                    self.current_line_index = (line_index, index)
+                    raise Exception(current_token)
                 index += 1
                 if current_state.is_accepting:
                     if current_state.number == 19:
                         current_state, current_token = self.handle_adding_error(current_token, line_index + 1, True,
                                                                                 False, trash, comment_start)
+                        self.current_line_index = (line_index, index)
+                        raise Exception(current_token)
                     else:
                         if current_state.token_type != 'COMMENT':
                             current_state, current_token = self.handle_adding_token(current_state, current_token,
                                                                                     result_per_line)
+                            self.current_line_index = (line_index, index)
+                            return result_per_line
                         elif current_token.startswith("//"):
                             current_state = self.states[0]
                         elif current_token.endswith("*/"):
@@ -157,15 +164,12 @@ class Scanner:
                             current_state = self.states[0]
 
             if current_state.number == 13 and comment_start == 0:
-                comment_start = line_index + 1
-            str_result_line = ""
-            for token in result_per_line:
-                str_result_line += '(' + token[0] + ', ' + token[1] + ') '
-            if str_result_line != '':
-                total_result.append(f"{line_index + 1}.\t{str_result_line}")
+                self.current_comment_start = line_index + 1
+
         if current_state.number == 13:
             self.handle_adding_error(current_token, comment_start, False, True, '', comment_start)
-        self.write_results_to_file(total_result, self.symbol_table_str, self.errors)
+            self.current_line_index = (line_index, index)
+            raise Exception(current_token)
 
     def handle_adding_error(self, current_token, line_index, is_bad, unclosed, trash, comment_start):
         if self.is_number_invalid(current_token):
@@ -197,4 +201,3 @@ class Scanner:
         current_state = self.states[0]
         current_token = ""
         return current_state, current_token
-# TODO WE CAN not use regex
