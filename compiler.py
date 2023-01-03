@@ -2,7 +2,7 @@ from scanner import Scanner
 from IO.File import TextFile
 from Language.Programming_language import *
 # Set this variable to empty string before submitting the answer
-INPUT_PATH_PREFIX = "./test/T01/"
+INPUT_PATH_PREFIX = "./test/T15/"
 
 # INPUT_PATH_PREFIX = ""
 
@@ -14,6 +14,14 @@ if __name__ == "__main__":
     language = CMinus()
     code = TextFile(address)
     scanner = Scanner(code.access(), language)
-    for i in range (100):
-        print(scanner.get_next_token())
-    print(scanner.all_tokens)
+    index = 0
+    while True:
+        index += 1
+        token = scanner.get_next_token()
+        print(token)
+        if token == '$':
+            break
+        if index == 1000:
+            break
+    print(scanner.symbol_table)
+    print(scanner.errors)

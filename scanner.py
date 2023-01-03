@@ -30,11 +30,13 @@ class Scanner:
         try:
             for line_index in range(current_line_index, len(self.input_text)):
                 if index == len(self.input_text[line_index]) - 1:
-                   # print('check')
+                    if line_index == len(self.input_text) - 1:
+                        if current_state.number == 13:
+                            self.handle_adding_error(current_token, self.current_comment_start, False, True, '',
+                                                     self.current_comment_start)
+                        raise IndexError
                     line_index += 1
                     index = 0
-                    if line_index == len(self.input_text) - 1:
-                        raise IndexError
                 while index < len(self.input_text[line_index]):
                     current_char = self.input_text[line_index][index]
                     if current_char == '':
@@ -87,12 +89,10 @@ class Scanner:
                 index = 0
                 if current_state.number == 13 and self.current_comment_start == 0:
                     self.current_comment_start = line_index + 1
-        except IndexError:
+            return '$'
+        except IndexError as I:
             return '$'
 
-        if current_state.number == 13:
-            self.handle_adding_error(current_token, self.current_comment_start, False, True, '',
-                                     self.current_comment_start)
     def handle_adding_error(self, current_token, line_index, is_bad, unclosed, trash, comment_start):
         if self.is_number_invalid(current_token):
             self.add_error(line_index, "Invalid number", current_token, trash)
