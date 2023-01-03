@@ -1,3 +1,4 @@
+from parser import Parser
 from scanner import Scanner
 # Set this variable to empty string before submitting the answer
 INPUT_PATH_PREFIX = "./test/T01/"
@@ -11,19 +12,6 @@ if __name__ == "__main__":
     with open(INPUT_PATH_PREFIX+'input.txt', 'r') as file:
         input_string = file.readlines()
         scanner = Scanner(input_string)
-        #This line is for test purposes
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
-        print(scanner.get_next_token())
+        parser = Parser()
+
 

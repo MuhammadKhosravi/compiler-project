@@ -1,32 +1,16 @@
+import json
+import pandas as pd
+
+
+def convert_json_to_pd_table():
+    with open("parser/table.json") as file:
+        file_data = json.load(file)
+        parse_table_json = file_data['parse_table']
+        data_frame = pd.DataFrame(parse_table_json).transpose()
+        data_frame = data_frame.where(pd.notnull(data_frame), None)
+        return data_frame
+
+
 class Parser:
     def __init__(self):
-        pass
-
-    # this will get rules (somehow, either read from file or hardcoded here).
-    def get_rules(self):
-        pass
-
-    # this will generate the grammar with dot (.) stuff
-    def augment_grammar(self):
-        pass
-
-    def find_closure(self):
-        pass
-
-    def calculate_goto(self):
-        pass
-
-    def go_to(self):
-        pass
-
-    def generate_states(self):
-        pass
-
-    def calculate_first(self):
-        pass
-
-    def calculate_follow(self):
-        pass
-
-    def create_parse_table(self):
-        pass
+        self.parse_table = convert_json_to_pd_table()
