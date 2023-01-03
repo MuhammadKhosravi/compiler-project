@@ -28,5 +28,4 @@ if __name__ == "__main__":
     # print(scanner.symbol_table)
     # print(scanner.errors)
     parser = Parser()
-    print(parser.parse_table.head())
 
