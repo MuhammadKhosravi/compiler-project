@@ -27,5 +27,6 @@ if __name__ == "__main__":
     #         break
     # print(scanner.symbol_table)
     # print(scanner.errors)
-    parser = Parser()
+    parser = Parser(scanner)
+    parser.parse()
 
