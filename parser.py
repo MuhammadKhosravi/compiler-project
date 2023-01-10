@@ -4,7 +4,8 @@ from ordered_set import OrderedSet
 import pandas as pd
 
 from ParserFiles.stack import Stack
-from Language.Node import  Node
+from Language.Node import Node
+
 all_table_info = None
 
 
@@ -81,6 +82,8 @@ class Parser:
         str_errors = ''
         for error in self.errors:
             str_errors += error + '\n'
+        if len(self.errors) == 0:
+            str_errors = "There is no syntax error."
         with open('syntax_errors.txt', 'w') as file:
             file.write(str_errors)
 
@@ -103,6 +106,7 @@ class Parser:
                     if self.current_token == '$':
                         self.errors.append(f'#{current_line + 1} : syntax error , Unexpected EOF')
                         self.write_errors_to_file()
+                        Node.write_to_file(content='')
                         exit(0)
                     tmp_token_type = self.token_type
                     if self.current_token in self.scanner.language.KEYWORDS:
@@ -116,7 +120,8 @@ class Parser:
 
                     else:
                         self.token_type = tmp_token_type
-                        self.errors.append(f"#{current_line} : syntax error , discarded {self.current_token} from input")
+                        self.errors.append(
+                            f"#{current_line} : syntax error , discarded {self.current_token} from input")
                 self.stack.push(non_terminal[0])
                 goto = self.parse_table[non_terminal[0]][top_of_stack]
                 self.errors.append(f"#{current_line} : syntax error , missing {non_terminal[0]}")
@@ -125,10 +130,9 @@ class Parser:
                 self.need_new_token = False
             else:
                 popped_stuff = self.stack.pop(number_of_pops=3)
-                self.errors.append(f"syntax error , discarded {popped_stuff[1].name} from stack")
+                self.errors.append(f"syntax error , discarded {popped_stuff[1].string} from stack")
 
     def accept(self, _, __, ___):
-        print('We are done!')
         Node.traverse()
         self.is_accepted = True
         self.write_errors_to_file()
@@ -176,4 +180,3 @@ class Parser:
 
     def goto(self, number, _, __):
         self.stack.push(number)
-

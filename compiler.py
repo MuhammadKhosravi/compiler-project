@@ -1,4 +1,4 @@
-from parserr import Parser
+from parser import Parser
 from scanner import Scanner
 from IO.File import TextFile
 from Language.Programming_language import *
