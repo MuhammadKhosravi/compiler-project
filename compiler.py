@@ -4,7 +4,7 @@ from IO.File import TextFile
 from Language.Programming_language import *
 import os
 # Set this variable to empty string before submitting the answer
-INPUT_PATH_PREFIX = "./test/T01/"
+INPUT_PATH_PREFIX = "./test/T07/"
 
 # INPUT_PATH_PREFIX = ""
 

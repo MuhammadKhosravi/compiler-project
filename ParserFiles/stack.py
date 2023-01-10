@@ -14,5 +14,8 @@ class Stack:
     def get_top(self):
         return self.stack[-1]
 
+    def get_last_state(self):
+        return self.stack[-3]
+
     def __str__(self):
         return str(self.stack)
