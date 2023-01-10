@@ -3,7 +3,7 @@ import json
 import pandas as pd
 
 from ParserFiles.stack import Stack
-
+from Language.Node import  Node
 all_table_info = None
 
 
@@ -107,61 +107,3 @@ class Parser:
     def goto(self, number, _, __):
         self.stack.push(number)
 
-
-class Node:
-    leaves = list()
-    symbols = ['(', ')', '/', '*', '-', '+', '==', '<', '[', ']', ';', ':', '{', '}', '=']
-
-    def __init__(self, name, is_leaf):
-        self.name = name
-        self.parent = None
-        self.children = list()
-        if is_leaf:
-            Node.leaves.append(self)
-            if '#' in name:
-                joint = name.split('#')
-                self.name = '(' + joint[0] + ', ' + joint[1] + ')'
-                if joint[0] == joint[1]:
-                    if joint[0] in Node.symbols:
-                        self.name = '(SYMBOL, ' + joint[0] + ')'
-                    else:
-                        self.name = 'KEYWORD, ' + joint[0] + ')'
-
-
-    def add_parent(self, parent):
-        self.parent = parent
-
-    def add_children(self, children):
-        self.children.extend(children)
-
-    def __str__(self):
-        return self.name
-
-    def traverse():
-        max_depth = 0
-        for node in Node.leaves:
-            depth = 0
-            node_temp = node
-            while type(node_temp) == Node:
-                if type(node_temp.parent) == Node:
-                    root = node_temp
-                node_temp = node_temp.parent
-                depth += 1
-            if depth > max_depth:
-                max_depth = depth
-        print(max_depth)
-        print('rooooot is ', root)
-        root_main = Node('program', False)
-        root_main.add_children([root])
-        root.add_parent(root_main)
-        queue = [[root_main]]
-        for i in range (max_depth):
-            children = list()
-            for nodes in queue:
-                print('[', end='')
-                for node in nodes:
-                    print(node, end= ',')
-                    children.append(node.children.__reversed__())
-                print(']', end='#')
-            print('\n--------------------------------------')
-            queue = children
