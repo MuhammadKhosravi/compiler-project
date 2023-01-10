@@ -1,8 +1,8 @@
+from parserr import Parser
 from scanner import Scanner
 from IO.File import TextFile
 from Language.Programming_language import *
-from parser import Parser
-
+import os
 # Set this variable to empty string before submitting the answer
 INPUT_PATH_PREFIX = "./test/T01/"
 
@@ -16,17 +16,6 @@ if __name__ == "__main__":
     language = CMinus()
     code = TextFile(address)
     scanner = Scanner(code.access(), language)
-    # index = 0
-    # while True:
-    #     index += 1
-    #     token = scanner.get_next_token()
-    #     print(token)
-    #     if token == '$':
-    #         break
-    #     if index == 1000:
-    #         break
-    # print(scanner.symbol_table)
-    # print(scanner.errors)
     parser = Parser(scanner)
     parser.parse()
 
