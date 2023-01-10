@@ -1,26 +1,19 @@
-void f (){
-output(10);
+/* sample 10 */
 
-output(100);
-output(a+b-c*d+m-n );
+int f(int a) {
+     void g(int b) {
+        output(b);
+        return f(b-1)+f(b-2);
+    }
 
+    if (a==0)
+        return 0;
+    else
+        return g(a);
+    endif
 }
 
-void main(void){
-f();
-f();
-f();
 
-int a = 10; // def a
-int aa = 100; // def aa
-int aaa = a * aa; /* def aaa*/
-int b = -100;
-int c = - 100;
-while (0 < 1){
-a = aa * aaa + a - b;
-}
-retur c;
-return b;
-
-
+void main(void) {
+    f(10);
 }

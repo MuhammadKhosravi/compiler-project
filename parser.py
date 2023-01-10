@@ -24,6 +24,7 @@ class Parser:
     def __init__(self, scanner):
         convert_json_to_object()
         self.parse_table = get_pd_table()
+        self.column_headers = set(self.parse_table.columns)
         self.terminals = all_table_info['terminals']
         self.non_terminals = all_table_info['non_terminals']
         self.firsts = all_table_info['first']
@@ -31,29 +32,60 @@ class Parser:
         self.grammar = all_table_info['grammar']
         self.scanner = scanner
         self.stack = Stack()
-        self.action_function_dict = {'shift': self.shift, 'reduce': self.reduce, 'goto': self.goto}
+        self.action_function_dict = {'shift': self.shift, 'reduce': self.reduce, 'goto': self.goto,
+                                     'accept': self.accept}
+        self.need_new_token = True
 
     def parse(self):
         scanner = self.scanner
-        self.stack.push('shift_0')
+        stack = self.stack
+        parse_table = self.parse_table
+
+        self.stack.push('0')
+        counter = 0
+        current_token, token_type = None, None
         while True:
-            current_token = scanner.get_next_token()
-            print(current_token)
-            if current_token == '$':
-                break
-        # print(scanner.symbol_table)
-        # print(scanner.errors)
+            if self.need_new_token:
+                current_token, token_type = scanner.get_next_token()
+            current_entry = current_token if current_token in self.column_headers else token_type
+            if stack.get_top().startswith('goto_'):
+                current_action = stack.pop()
+            else:
+                current_action = parse_table[current_entry][stack.get_top()]
 
-    def do_action(self, action_number):
-        action, number = action_number.split('_')
+            print(current_action, current_token, current_entry)
+            self.do_action(current_action, current_entry)
+            print(stack)
+            counter += 1
+
+    def accept(self, _, __):
+        print('We are done!')
+        exit(0)
+
+    def do_action(self, action_with_number, current_token):
+        if action_with_number == 'accept':
+            action = action_with_number
+            number = None
+        else:
+            action, number = action_with_number.split('_')
         action_function = self.action_function_dict[action]
-        action_function(action_number)
+        action_function(number, current_token)
 
-    def shift(self):
-        pass
+    def shift(self, number, current_token):
+        self.stack.push(current_token)
+        self.stack.push(number)
+        self.need_new_token = True
 
-    def reduce(self):
-        pass
+    def reduce(self, number, _):
+        pointed_grammar = self.grammar[number]
+        # length of right-hand-side
+        len_of_rhs = len(pointed_grammar[2:]) if pointed_grammar[2] != 'epsilon' else 0
+        self.stack.pop(number_of_pops=2 * len_of_rhs)
+        number_before_push = self.stack.get_top()
+        self.stack.push(pointed_grammar[0])
+        current_entry = self.parse_table[self.stack.get_top()][number_before_push]
+        self.stack.push(current_entry)
+        self.need_new_token = False
 
-    def goto(self):
-        pass
+    def goto(self, number, _):
+        self.stack.push(number)

@@ -1,16 +1,21 @@
-int main(){
-	while (arr[2milk]> 2){
-		x = 23apple;
-		mk3 = x + 1;
-		if mk3 == 52 :
-			b =# 32;
-			return 2;
-		break;
-	}
-	this = 2;
-	return;;!
+/* sample 12 */
+
+void main(void){
+    int x; int y;
+	a = 5;
+    switch (fibonachi(a)) {
+       case 1 : {
+                 while(x<2){
+                 printf(x);
+                 x = x - 1;
+                 }
+              }
+       case 2 : {
+                if(x<y){
+                    printf(x);
+               } endif;
+              }
+       case 3 : x;
+       default : ;
+    }
 }
-# end of the code
-/* end of end of the code
-# hmmmmmm
-@#$#%%$*/

@@ -1,16 +1,11 @@
-int f(int a){
-return a * a * a;
-}
+/* sample 15 */
+
+int global 1;
+
 void main(void){
-int a;
-int b;
-a = 8;
-if (b < 5) {
-a = f(a);
-}
-else{
-a = 4;
+	int a[10]; int b;
+	print(a);
+	int c[10], int c;
 }
 
-break;
-}
+int global2;

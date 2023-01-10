@@ -1,16 +1,19 @@
-int m (int a, int b){
-	if (a == 10){
-		while (b < 10000) {
-			b = b * a;
-			if ( b / 13 == 1) {
-				break;
-			}
-		}
-	}
-}
+/* sample 2 */
 
-void main (void){
-m();
-int n = 34mn;
-/* main func */
+int global1;
+int global2;
+
+int a(int a, int b, int c[]){
+   global1 = 0;
+   while(a<b){
+     global2 = global1 + c[a+b-1];
+     a = a - b;
+   }
+   c[0] = global2;
+   return c[0];
+}
+void main(void){
+	int array[50];
+	array[10] = a(0, 50, array);
+	return;
 }

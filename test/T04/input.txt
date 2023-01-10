@@ -1,20 +1,29 @@
-void main (void){
-int n = 34mn;
-int m = 3;
-int p = 32;
-int q = 3 * (m + n);
-while (m <  20 ){
-p = p + 1;
-m = m * 2;
+/* sample 4 */
+
+int fibonachi(int n){
+  if(n==1)
+     return 1;
+  endif
+  if(n==2)
+     return 2;
+  endif
+  return fibonachi(n) + fibonachi(n-1);
 }
-switch (m) {
-case 3:
-q = 1;
-break;
-case 12:
-q = 5df;
-break;
-default:
-n = /*unclosed comment
+
+void main(void){
+	a = 5;
+    switch (fibonachi(a)) {
+       case 1 : 1;
+       case 2 : {
+                output(2);
+               }
+       case 3 :  3;
+       case 5 :  4;
+       default : exit();
+    }
+
+    switch (fibonachi(a)) {
+       case 1 : 1;
+       case 2:   ;
+    }
 }
-// end of test

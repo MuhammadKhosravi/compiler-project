@@ -80,7 +80,7 @@ class Scanner:
                                     current_token = ""
                                     continue
                                 self.current_line_index = (line_index, index)
-                                return current_token
+                                return current_token, current_state.token_type
                             elif current_token.startswith("//"):
                                 current_state = self.states[0]
                             elif current_token.endswith("*/"):
@@ -89,9 +89,9 @@ class Scanner:
                 index = 0
                 if current_state.number == 13 and self.current_comment_start == 0:
                     self.current_comment_start = line_index + 1
-            return '$'
+            return '$', "END"
         except IndexError as I:
-            return '$'
+            return '$', 'END'
 
     def handle_adding_error(self, current_token, line_index, is_bad, unclosed, trash, comment_start):
         if self.is_number_invalid(current_token):

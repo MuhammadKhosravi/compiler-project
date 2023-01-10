@@ -1,17 +1,8 @@
-/* bad comment
+/* sample 7 */
 
-void main (void){
-	int 0101;
-	int b;
-	int a = b;
-	break;
-	int f = a < b + b * a;
-	int 10g;
-	/ comment;
-	if (f){
-	int my_int = 10
-	}
-	return 100;
-	
-
+void main(int{
+	int prod;
+	int i;
+	prod = 1;
+	i = 1;
 }
