@@ -49,7 +49,7 @@ expression_stmt: expression ';'
 selection_stmt: "if" '(' expression ')' #save statement "endif" #jpf
 | "if" '(' expression ')' #save statement "else" #jpf_save statement "endif" #jp
 ;
-iteration_stmt: "while" '(' expression ')' statement
+iteration_stmt: "while" #label '(' expression ')' #save statement #while
 ;
 return_stmt: "return" ';'
 | "return" expression ';'
@@ -92,6 +92,7 @@ factor: '(' expression ')'
 | var
 | call
 | NUM
+| output
 ;
 call: ID '(' args ')'
 ;
@@ -101,4 +102,5 @@ args: arg_list
 arg_list: arg_list ',' expression
 | expression
 ;
+output: "output " #pid factor #print
 %%
