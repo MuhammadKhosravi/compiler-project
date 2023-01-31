@@ -1,7 +1,7 @@
-from File import TextFile
+from IO.File import TextFile
 from scanner import Scanner
-from Programming_language import CMinus
-from my_parser import Parser
+from Language.Programming_language import CMinus
+from Parser.my_parser import Parser
 # Set this variable to empty string before submitting the answer
 # INPUT_PATH_PREFIX = "test/testcases/T15/"
 

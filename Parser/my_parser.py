@@ -1,7 +1,7 @@
 import json
 
 from stack import Stack
-from Node import Node
+from Language.Node import Node
 
 all_table_info = None
 
@@ -2256,7 +2256,7 @@ class Parser:
             str_errors += error + '\n'
         if len(self.errors) == 0:
             str_errors = "There is no syntax error."
-        with open('syntax_errors.txt', 'w') as file:
+        with open('../syntax_errors.txt', 'w') as file:
             file.write(str_errors)
 
     def handle_errors(self):
