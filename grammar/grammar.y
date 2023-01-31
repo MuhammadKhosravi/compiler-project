@@ -54,17 +54,17 @@ iteration_stmt: "while" #label '(' expression ')' #save statement #while
 return_stmt: "return" ';'
 | "return" expression ';'
 ;
-switch_stmt: "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+switch_stmt: #switch "switch" '(' #pid expression ')' '{' case_stmts default_stmt '}'#finish
 ;
 case_stmts: case_stmts case_stmt
 | /* epsilon */
 ;
-case_stmt: "case" NUM ':' statement_list
+case_stmt: #jpf_save "case" NUM #save':' statement_list #out
 ;
-default_stmt: "default" ':' statement_list
+default_stmt: #jpf_save "default" ':' statement_list #out
 | /* epsilon */
 ;
-expression: var '=' expression
+expression: var '=' expression #assign
 | simple_expression
 ;
 var: ID
