@@ -17,6 +17,9 @@ class IntermediateCodeGenerator:
             'print': self.print_action,
             'label': self.label_action,
             'while': self.while_action,
+            'switch': self.switch_action,
+            'finish': self.finish_action,
+            'out': self.out_action,
         }
 
     def code_gen(self, action_symbol, token=None):
@@ -48,6 +51,7 @@ class IntermediateCodeGenerator:
 
     def pid_action(self, token):
         pass
+
     def print_action(self, token):
         pass
 
@@ -56,6 +60,16 @@ class IntermediateCodeGenerator:
 
     def while_action(self):
         pass
+
+    def switch_action(self):
+        pass
+
+    def finish_action(self):
+        pass
+
+    def out_action(self):
+        pass
+
 
 if __name__ == '__main__':
     cg = IntermediateCodeGenerator()
