@@ -1,24 +1,29 @@
+from Parser.stack import Stack
+
+
 class IntermediateCodeGenerator:
     def __init__(self):
         self.intermediate_code = ""
+        self.semantic_stack = Stack()
+        self.actions = {
+            'add': self.add_action,
+            'mult': self.mult_action,
+            'save': self.save_action,
+            'jpf_save': self.jpf_save_action,
+            'jpf': self.jpf_action,
+            'jp': self.jp_action,
+            'pid': self.pid_action,
+            'assign': self.assign_action,
+            'print': self.print_action,
+            'label': self.label_action,
+            'while': self.while_action,
+        }
 
-    def code_gen(self, action_symbol):
-        if action_symbol == 'add':
-            self.add_action()
-        elif action_symbol == 'mult':
-            self.mult_action()
-        elif action_symbol == 'save':
-            self.save_action()
-        elif action_symbol == 'jpf_save':
-            self.jpf_save_action()
-        elif action_symbol == 'jpf':
-            self.jpf_action()
-        elif action_symbol == 'jp':
-            self.jp_action()
-        elif action_symbol == 'id':
-            self.id_action()
-        elif action_symbol == 'assign':
-            self.assign_action()
+    def code_gen(self, action_symbol, token=None):
+        param = {'token': token} if token is not None else {}
+        action_function = self.actions[action_symbol]
+        # noinspection PyArgumentList
+        action_function(**param)
 
     def add_action(self):
         pass
@@ -41,5 +46,17 @@ class IntermediateCodeGenerator:
     def assign_action(self):
         pass
 
-    def id_action(self):
+    def pid_action(self, token):
         pass
+    def print_action(self, token):
+        pass
+
+    def label_action(self):
+        pass
+
+    def while_action(self):
+        pass
+
+if __name__ == '__main__':
+    cg = IntermediateCodeGenerator()
+    cg.code_gen('pid', 'salam')
