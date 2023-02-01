@@ -1,7 +1,8 @@
 import json
 
-from stack import Stack
+from Parser.stack import Stack
 from Language.Node import Node
+from code_gen import  IntermediateCodeGenerator
 
 all_table_info = None
 
@@ -2211,6 +2212,7 @@ class Parser:
         self.is_accepted = False
         self.current_token, self.token_type = None, None
         self.errors = []
+        self.code_gen = IntermediateCodeGenerator(scanner.symbol_table)
 
     def parse(self):
         scanner = self.scanner

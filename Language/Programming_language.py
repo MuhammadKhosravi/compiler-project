@@ -1,4 +1,4 @@
-from State import State
+from Language.State import State
 
 
 class ProgrammingLanguage:

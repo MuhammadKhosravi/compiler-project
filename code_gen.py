@@ -5,8 +5,10 @@ from Parser.stack import Stack
 #"if" '(' expression ')' save statement "else" jpf_save statement "endif" --> #jp
 
 class IntermediateCodeGenerator:
-    def __init__(self):
+    def __init__(self, symbol_table):
+        self.symbol_table = symbol_table
         self.intermediate_code = ""
+        self.current_index = 0
         self.semantic_stack = Stack()
         self.actions = {
             50: self.add_action,

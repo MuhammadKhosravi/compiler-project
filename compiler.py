@@ -3,9 +3,9 @@ from scanner import Scanner
 from Language.Programming_language import CMinus
 from Parser.my_parser import Parser
 # Set this variable to empty string before submitting the answer
-# INPUT_PATH_PREFIX = "test/testcases/T15/"
+INPUT_PATH_PREFIX = "testcases/T1/"
 
-INPUT_PATH_PREFIX = ""
+#INPUT_PATH_PREFIX = ""
 
 # Muhammad Khosravi 99105407
 # Arash Fattani Farshbaf 99101965
