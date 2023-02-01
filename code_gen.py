@@ -30,6 +30,7 @@ class IntermediateCodeGenerator:
             '36': self.finish_action,
             '40': self.out_action,
             '39': self.out_action,
+            '46': self.relop_action,
         }
 
     def code_gen(self, state, token=None):
@@ -84,6 +85,9 @@ class IntermediateCodeGenerator:
         pass
 
     def endfunc_action(self, token):
+        pass
+
+    def relop_action(self, token):
         pass
 
 

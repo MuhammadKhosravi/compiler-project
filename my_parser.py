@@ -147,7 +147,9 @@ class Parser:
             action_function = self.action_function_dict[action]
             action_function(number, current_token, name)
         except:
+            print(self.stack)
             self.handle_errors()
+            exit(10)
 
     def shift(self, number, current_token, name):
         self.stack.push(current_token)
