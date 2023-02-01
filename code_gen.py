@@ -10,52 +10,56 @@ class IntermediateCodeGenerator:
         self.intermediate_code = ""
         self.current_index = 0
         self.semantic_stack = Stack()
-        self.actions = {
-            50: self.add_action,
-            54: self.mult_action,
-            69: self.save_action,
-            70: self.jpf_save_action,
-            31: self.jpf_action,
-            32: self.jp_action,
-            73: self.pid_action,
-            42: self.assign_action,
-            68: self.print_action,
-            71: self.label_action,
-            33: self.while_action,
-            72: self.switch_action,
-            36: self.finish_action,
-            40: self.out_action,
-            39: self.out_action,
-        }
         self.states = {
 
         }
+        self.actions = {
+            '9': self.endfunc_action,
+            '50': self.add_action,
+            '54': self.mult_action,
+            '69': self.save_action,
+            '70': self.jpf_save_action,
+            '31': self.jpf_action,
+            '32': self.jp_action,
+            '73': self.pid_action,
+            '42': self.assign_action,
+            '68': self.print_action,
+            '71': self.label_action,
+            '33': self.while_action,
+            '72': self.switch_action,
+            '36': self.finish_action,
+            '40': self.out_action,
+            '39': self.out_action,
+        }
 
     def code_gen(self, state, token=None):
+        if state not in self.actions.keys():
+            return
         param = {'token': token} if token is not None else {}
         action_function = self.actions[state]
         # noinspection PyArgumentList
         action_function(**param)
 
-    def add_action(self):
+
+    def add_action(self, token):
         pass
 
-    def mult_action(self):
+    def mult_action(self, token):
         pass
 
-    def save_action(self):
+    def save_action(self, token):
         pass
 
-    def jpf_save_action(self):
+    def jpf_save_action(self, token):
         pass
 
-    def jpf_action(self):
+    def jpf_action(self, token):
         pass
 
-    def jp_action(self):
+    def jp_action(self, token):
         pass
 
-    def assign_action(self):
+    def assign_action(self, token):
         pass
 
     def pid_action(self, token):
@@ -64,19 +68,22 @@ class IntermediateCodeGenerator:
     def print_action(self, token):
         pass
 
-    def label_action(self):
+    def label_action(self, token):
         pass
 
-    def while_action(self):
+    def while_action(self, token):
         pass
 
-    def switch_action(self):
+    def switch_action(self, token):
         pass
 
-    def finish_action(self):
+    def finish_action(self, token):
         pass
 
-    def out_action(self):
+    def out_action(self, token):
+        pass
+
+    def endfunc_action(self, token):
         pass
 
 

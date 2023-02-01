@@ -156,7 +156,7 @@ class Parser:
         self.stack.push(number)
         self.need_new_token = True
 
-    def reduce(self, number, _, __):
+    def reduce(self, number, token_type, token):
         pointed_grammar = self.grammar[number]
         # length of right-hand-side
         len_of_rhs = len(pointed_grammar[2:]) if pointed_grammar[2] != 'epsilon' else 0
@@ -177,6 +177,7 @@ class Parser:
         self.stack.push(parent)
         self.stack.push(current_entry)
         self.need_new_token = False
+        self.code_gen.code_gen(number, token)
 
     def goto(self, number, _, __):
         self.stack.push(number)
