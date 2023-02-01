@@ -16,7 +16,7 @@ var_declaration: type_specifier ID ';'
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier ID '(' params ')' compound_stmt # TODO
+fun_declaration: type_specifier ID '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -46,25 +46,26 @@ expression_stmt: expression ';'
 | "break" ';'
 | ';'
 ;
-selection_stmt: "if" '(' expression ')' #save statement "endif" #jpf
-| "if" '(' expression ')' #save statement "else" #jpf_save statement "endif" #jp
+selection_stmt: "if" '(' expression ')' save statement "endif"
+| "if" '(' expression ')' save statement "else" jpf_save statement "endif"
 ;
-iteration_stmt: "while" #label '(' expression ')' #save statement #while
+
+iteration_stmt: "while" label '(' expression ')' save statement
 ;
 return_stmt: "return" ';'
 | "return" expression ';'
 ;
-switch_stmt: #switch "switch" '(' #pid expression ')' '{' case_stmts default_stmt '}'#finish
+switch_stmt: switch "switch" '(' pid expression ')' '{' case_stmts default_stmt '}'
 ;
 case_stmts: case_stmts case_stmt
 | /* epsilon */
 ;
-case_stmt: #jpf_save "case" NUM #save':' statement_list #out
+case_stmt: jpf_save "case" NUM save':' statement_list
 ;
-default_stmt: #jpf_save "default" ':' statement_list #out
+default_stmt: jpf_save "default" ':' statement_list
 | /* epsilon */
 ;
-expression: var '=' expression #assign
+expression: var '=' expression
 | simple_expression
 ;
 var: ID
@@ -76,20 +77,20 @@ simple_expression: additive_expression relop additive_expression
 relop: '<'
 | "=="
 ;
-additive_expression: additive_expression addop term #add
+additive_expression: additive_expression addop term
 | term
 ;
 addop: '+'
 | '-'
 ;
-term: term mulop factor #mult
+term: term mulop factor
 | factor
 ;
 mulop: '*'
 | '/'
 ;
 factor: '(' expression ')'
-| var
+| pid var
 | call
 | NUM
 | output
@@ -102,5 +103,16 @@ args: arg_list
 arg_list: arg_list ',' expression
 | expression
 ;
-output: "output " #pid factor #print
+output: "output " pid factor
+;
+save: /* epsilon */
+;
+jpf_save: /* epsilon */
+;
+label: /* epsilon */
+;
+switch: /* epsilon */
+;
+pid: /* epsilon */
+;
 %%

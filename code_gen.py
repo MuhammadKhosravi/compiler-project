@@ -1,30 +1,37 @@
 from Parser.stack import Stack
 
+#selection_stmt: "if" '(' expression ')' save statement "endif"  --> #jpf
+
+#"if" '(' expression ')' save statement "else" jpf_save statement "endif" --> #jp
 
 class IntermediateCodeGenerator:
     def __init__(self):
         self.intermediate_code = ""
         self.semantic_stack = Stack()
         self.actions = {
-            'add': self.add_action,
-            'mult': self.mult_action,
-            'save': self.save_action,
-            'jpf_save': self.jpf_save_action,
-            'jpf': self.jpf_action,
-            'jp': self.jp_action,
-            'pid': self.pid_action,
-            'assign': self.assign_action,
-            'print': self.print_action,
-            'label': self.label_action,
-            'while': self.while_action,
-            'switch': self.switch_action,
-            'finish': self.finish_action,
-            'out': self.out_action,
+            50: self.add_action,
+            54: self.mult_action,
+            69: self.save_action,
+            70: self.jpf_save_action,
+            31: self.jpf_action,
+            32: self.jp_action,
+            73: self.pid_action,
+            42: self.assign_action,
+            68: self.print_action,
+            71: self.label_action,
+            33: self.while_action,
+            72: self.switch_action,
+            36: self.finish_action,
+            40: self.out_action,
+            39: self.out_action,
+        }
+        self.states = {
+
         }
 
-    def code_gen(self, action_symbol, token=None):
+    def code_gen(self, state, token=None):
         param = {'token': token} if token is not None else {}
-        action_function = self.actions[action_symbol]
+        action_function = self.actions[state]
         # noinspection PyArgumentList
         action_function(**param)
 
