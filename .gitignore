@@ -3,5 +3,5 @@ __pycache__/*
 lexical_errors.txt
 symbol_table.txt
 syntax_errors.txt
-Parser/parse_tree.txt
+parse_tree.txt
 tokens.txt

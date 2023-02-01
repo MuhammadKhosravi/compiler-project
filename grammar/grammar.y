@@ -7,16 +7,16 @@ program: declaration_list
 declaration_list: declaration_list declaration
 | declaration
 ;
-declaration: var_declaration 
+declaration: var_declaration
 | fun_declaration 
 ;
-var_declaration: type_specifier ID ';' 
-| type_specifier ID '[' NUM ']' ';'
+var_declaration: type_specifier declare_id pid ID ';'
+| type_specifier declare_id pid ID '[' NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier ID '(' params ')' compound_stmt
+fun_declaration: type_specifier declare_id pid ID '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -24,8 +24,8 @@ params: param_list
 param_list: param_list ',' param
 | param
 ;
-param: type_specifier ID
-| type_specifier ID '[' ']'
+param: type_specifier declare_id pid ID
+| type_specifier declare_id pid ID '[' ']'
 ;
 compound_stmt: '{' local_declarations statement_list '}'
 ;
@@ -55,7 +55,7 @@ iteration_stmt: "while" label '(' expression ')' save statement
 return_stmt: "return" ';'
 | "return" expression ';'
 ;
-switch_stmt: switch "switch" '(' pid expression ')' '{' case_stmts default_stmt '}'
+switch_stmt: switch "switch" '('declare_id pid expression ')' '{' case_stmts default_stmt '}'
 ;
 case_stmts: case_stmts case_stmt
 | /* epsilon */
@@ -68,8 +68,8 @@ default_stmt: jpf_save "default" ':' statement_list
 expression: var '=' expression
 | simple_expression
 ;
-var: ID
-| ID '[' expression ']'
+var: pid ID
+| pid ID '[' expression ']'
 ;
 simple_expression: additive_expression relop additive_expression
 | additive_expression
@@ -90,20 +90,17 @@ mulop: '*'
 | '/'
 ;
 factor: '(' expression ')'
-| pid var
+| var
 | call
 | NUM
-| output
 ;
-call: ID '(' args ')'
+call: pid ID '(' args ')'
 ;
 args: arg_list
 | /* epsilon */
 ;
 arg_list: arg_list ',' expression
 | expression
-;
-output: "output " pid factor
 ;
 save: /* epsilon */
 ;
@@ -115,4 +112,5 @@ switch: /* epsilon */
 ;
 pid: /* epsilon */
 ;
+declare_id: /* epsilon */
 %%

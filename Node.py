@@ -83,6 +83,6 @@ class Node:
     def write_to_file(content=None):
         if content is None:
             content = Node.file_content
-        with open('../Parser/parse_tree.txt', 'w', encoding='utf-8') as file:
+        with open('parse_tree.txt', 'w', encoding='utf-8') as file:
             file.write(Node.file_content)
 
