@@ -12,6 +12,7 @@ declaration: var_declaration
 ;
 var_declaration: type_specifier declare_id pid ID ';'
 | type_specifier declare_id pid ID '[' NUM ']' ';'
+| type_specifier declare_id pid ID '=' expression
 ;
 type_specifier: "int" 
 | "void"
