@@ -9,6 +9,7 @@ class IntermediateCodeGenerator:
         self.symbol_table = symbol_table
         self.intermediate_code = ""
         self.current_index = 0
+        self.var_index = 500
         self.semantic_stack = Stack()
         self.states = {
 
@@ -17,20 +18,21 @@ class IntermediateCodeGenerator:
             '9': self.endfunc_action,
             '50': self.add_action,
             '54': self.mult_action,
-            '69': self.save_action,
+            '67': self.save_action,
             '70': self.jpf_save_action,
             '31': self.jpf_action,
             '32': self.jp_action,
-            '73': self.pid_action,
+            '71': self.pid_action,
             '42': self.assign_action,
             '68': self.print_action,
-            '71': self.label_action,
+            '69': self.label_action,
             '33': self.while_action,
-            '72': self.switch_action,
+            '73': self.switch_action,
             '36': self.finish_action,
             '40': self.out_action,
             '39': self.out_action,
             '46': self.relop_action,
+            '72': self.declare_id_action
         }
 
     def code_gen(self, state, token=None):
@@ -41,9 +43,15 @@ class IntermediateCodeGenerator:
         # noinspection PyArgumentList
         action_function(**param)
 
-
     def add_action(self, token):
         pass
+
+    #initialize a variable by zero and give an address to it
+    def declare_id_action(self, token):
+        address = self.find_addr(token)
+        index = self.symbol_table.index((address, token))
+        self.symbol_table[index] = (address, token, 0)
+        self.intermediate_code += str(self.current_index) + "\t(ASSIGN, #0, 508,   )"
 
     def mult_action(self, token):
         pass
@@ -64,8 +72,13 @@ class IntermediateCodeGenerator:
         pass
 
     def pid_action(self, token):
-        pass
+        print(token)
+        print(self.find_addr(token))
 
+    def find_addr(self, current_token):
+        for address, token in self.symbol_table:
+            if token == current_token:
+                return address
     def print_action(self, token):
         pass
 

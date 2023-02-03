@@ -10,13 +10,13 @@ declaration_list: declaration_list declaration
 declaration: var_declaration
 | fun_declaration 
 ;
-var_declaration: type_specifier declare_id pid ID ';'
-| type_specifier declare_id pid ID '[' NUM ']' ';'
+var_declaration: type_specifier declare_id ID ';'
+| type_specifier declare_id ID '[' NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier declare_id pid ID '(' params ')' compound_stmt
+fun_declaration: type_specifier declare_func ID '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -68,8 +68,8 @@ default_stmt: jpf_save "default" ':' statement_list
 expression: var '=' expression
 | simple_expression
 ;
-var: declare_id pid ID
-| declare_id pid ID '[' expression ']'
+var: pid ID
+|  pid ID '[' expression ']'
 ;
 simple_expression: additive_expression relop additive_expression
 | additive_expression
@@ -113,4 +113,7 @@ switch: /* epsilon */
 pid: /* epsilon */
 ;
 declare_id: /* epsilon */
+;
+declare_func: /* epsilon */
+;
 %%
