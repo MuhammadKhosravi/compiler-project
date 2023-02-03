@@ -47,16 +47,19 @@ class Parser:
         counter = 0
         self.current_token, self.token_type = None, None
         while not self.is_accepted:
+            print('current state is ', self.stack.get_top())
             if self.need_new_token:
                 self.current_token, self.token_type = scanner.get_next_token()
                 print('NEW TOKEN')
                 print(self.current_token)
             current_entry = self.current_token if self.current_token in self.column_headers else self.token_type
             print([self.stack.stack[i] for i in range(self.stack.size) if i % 3 == 1])
+            print('current entry is ', current_entry)
             if stack.get_top().startswith('goto_'):
                 current_action = stack.pop()
             else:
                 try:
+                    print(self.parse_table2[str(stack.get_top())])
                     current_action = self.parse_table2[str(stack.get_top())][current_entry]
                 except:
                     current_action = None

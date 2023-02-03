@@ -12,7 +12,6 @@ declaration: var_declaration
 ;
 var_declaration: type_specifier declare_id pid ID ';'
 | type_specifier declare_id pid ID '[' NUM ']' ';'
-| type_specifier declare_id pid ID '=' expression
 ;
 type_specifier: "int" 
 | "void"
@@ -56,7 +55,7 @@ iteration_stmt: "while" label '(' expression ')' save statement
 return_stmt: "return" ';'
 | "return" expression ';'
 ;
-switch_stmt: switch "switch" '('declare_id pid expression ')' '{' case_stmts default_stmt '}'
+switch_stmt: switch "switch" '('expression ')' '{' case_stmts default_stmt '}'
 ;
 case_stmts: case_stmts case_stmt
 | /* epsilon */
