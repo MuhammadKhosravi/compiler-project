@@ -16,7 +16,7 @@ var_declaration: type_specifier declare_id ID ';'
 type_specifier: "int" 
 | "void"
 ;
-fun_declaration: type_specifier declare_func ID '(' params ')' compound_stmt
+fun_declaration: type_specifier declare_id func ID '(' params ')' compound_stmt
 ;
 params: param_list
 | "void"
@@ -114,6 +114,6 @@ pid: /* epsilon */
 ;
 declare_id: /* epsilon */
 ;
-declare_func: /* epsilon */
+func: /* epsilon */
 ;
 %%
