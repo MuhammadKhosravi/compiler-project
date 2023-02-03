@@ -1,8 +1,8 @@
 import json
 
-from Parser.stack import Stack
 from Node import Node
-from code_gen import  IntermediateCodeGenerator
+from Parser.stack import Stack
+from code_gen import IntermediateCodeGenerator
 
 all_table_info = None
 
@@ -49,7 +49,10 @@ class Parser:
         while not self.is_accepted:
             if self.need_new_token:
                 self.current_token, self.token_type = scanner.get_next_token()
+                print('NEW TOKEN')
+                print(self.current_token)
             current_entry = self.current_token if self.current_token in self.column_headers else self.token_type
+            print([self.stack.stack[i] for i in range(self.stack.size) if i % 3 == 1])
             if stack.get_top().startswith('goto_'):
                 current_action = stack.pop()
             else:

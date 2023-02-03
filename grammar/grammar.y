@@ -68,8 +68,8 @@ default_stmt: jpf_save "default" ':' statement_list
 expression: var '=' expression
 | simple_expression
 ;
-var: pid ID
-| pid ID '[' expression ']'
+var: declare_id pid ID
+| declare_id pid ID '[' expression ']'
 ;
 simple_expression: additive_expression relop additive_expression
 | additive_expression
@@ -94,7 +94,7 @@ factor: '(' expression ')'
 | call
 | NUM
 ;
-call: pid ID '(' args ')'
+call: declare_id pid ID '(' args ')'
 ;
 args: arg_list
 | /* epsilon */
