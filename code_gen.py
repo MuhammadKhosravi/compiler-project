@@ -34,7 +34,10 @@ class IntermediateCodeGenerator:
             '39': self.out_action,
             '46': self.relop_action,
             '72': self.declare_id_action,
-            '73': self.end_declare_action
+            '73': self.end_declare_func_action,
+            '6': self.end_declare_var_action,
+            '7': self.end_declare_var_action,
+            '74': self.op_action
         }
 
     def code_gen(self, state, token=None):
@@ -48,22 +51,30 @@ class IntermediateCodeGenerator:
     def add_action(self, token):
         pass
 
-    # TODO delete value part of symbol table for functions
+    # TODO eliminate giving value to the function from intermediate code
     # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
         address = self.find_addr(token)
         try:
             index = self.symbol_table.index((address, token))
-            self.symbol_table[index] = (address, token, 0, self.var_index)
+            self.symbol_table[index] = (address, token, 0, self.var_index, 'var')
             self.intermediate_code += str(self.current_index) + "\t(ASSIGN, #0," + str(self.var_index) + ",   )\n"
             self.var_index += 4
             self.current_index += 1
         except ValueError:
             return
 
-    def end_declare_action(self, token):
+    def end_declare_func_action(self, token):
+        stack_address = self.semantic_stack.pop()
+        element = self.find_by_addr(stack_address)
+        index = self.symbol_table.index(element)
+        self.symbol_table[index] = (element[0], element[1], None, element[3], 'func')
+
+    def end_declare_var_action(self, token):
         self.semantic_stack.pop()
 
+    def op_action(self, token):
+        print(token)
 
     def mult_action(self, token):
         print(token)
@@ -101,6 +112,14 @@ class IntermediateCodeGenerator:
         for element in self.symbol_table:
             if element[1] == current_token:
                 return element[3]
+
+    def find_by_addr(self, address_stack):
+        for element in self.symbol_table:
+            try:
+                if element[3] == address_stack:
+                    return element
+            except IndexError:
+                continue
 
     def print_action(self, token):
         pass

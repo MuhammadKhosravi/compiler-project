@@ -181,8 +181,6 @@ class Parser:
         self.stack.push(parent)
         self.stack.push(current_entry)
         self.need_new_token = False
-        if number == '54':
-            print(self.stack)
         self.code_gen.code_gen(number, token)
 
     def goto(self, number, _, __):
