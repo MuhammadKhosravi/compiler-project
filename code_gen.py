@@ -17,28 +17,29 @@ class IntermediateCodeGenerator:
 
         }
         self.actions = {
-            '9': self.endfunc_action,
-            '50': self.add_action,
-            '54': self.mult_action,
-            '67': self.save_action,
-            '70': self.jpf_save_action,
-            '31': self.jpf_action,
-            '32': self.jp_action,
-            '71': self.pid_action,
-            '42': self.assign_action,
-            '68': self.print_action,
-            '69': self.label_action,
-            '33': self.while_action,
-            '75': self.switch_action,
-            '36': self.finish_action,
-            '40': self.out_action,
-            '39': self.out_action,
-            '46': self.relop_action,
-            '72': self.declare_id_action,
-            '73': self.end_declare_func_action,
-            '6': self.end_declare_var_action,
-            '7': self.end_declare_var_action,
-            '74': self.op_action
+            '9': self.endfunc_action,  # not done
+            '50': self.add_action,  # done
+            '54': self.mult_action,  # done
+            '67': self.save_action,  # not done
+            '70': self.jpf_save_action,  # not done
+            '31': self.jpf_action,  # not done
+            '32': self.jp_action,  # not done
+            '74': self.pid_action,  # done
+            '42': self.assign_action,  # done
+            '64': self.print_action,  # not done
+            '69': self.label_action,  # not done
+            '33': self.while_action,  # not done
+            '65': self.switch_action,  # not done
+            '36': self.finish_action,  # not done
+            '40': self.out_action,  # not done
+            '39': self.out_action,  # not done
+            '46': self.relop_action,  # not done
+            '75': self.declare_id_action,  # done
+            '76': self.end_declare_func_action,  # done
+            '6': self.end_declare_var_action,  # done
+            '7': self.end_declare_var_action,  # done
+            '77': self.op_action,  # done
+            '78': self.num_action
         }
 
     def code_gen(self, state, token=None):
@@ -49,12 +50,20 @@ class IntermediateCodeGenerator:
         # noinspection PyArgumentList
         action_function(**param)
 
+    # element [0] is address in symbol table
+    # element [1] is name
+    # element [2] is value
+    # element [3] is variable address
+    # element [4] is the type
+    def num_action(self, token):
+        self.symbol_table.append((len(self.symbol_table), '#NUM', int(token), self.var_index, 'num'))
+        self.semantic_stack.push(self.var_index)
+        self.var_index += 4
+
     def add_action(self, token):
-        print('___________________________________________________________________________')
-        A, op, B = self.semantic_stack.pop(3)
+        B, op, A = self.semantic_stack.pop(3)
         A = self.find_operand(A)
         B = self.find_operand(B)
-        print(A)
         temp = self.var_index
         self.var_index += 4
         if op == "+":
@@ -95,17 +104,15 @@ class IntermediateCodeGenerator:
         self.semantic_stack.push(token)
 
     def find_operand(self, address):
-        print('address is ', address)
         if address in self.temp_values:
             temp = [None, None, self.temp_values[address], address, None]
             return temp
         else:
-            print(self.find_by_addr(address))
             return self.find_by_addr(address)
 
     # TODO add number in calculations
     def mult_action(self, token):
-        A, op, B = self.semantic_stack.pop(3)
+        B, op, A = self.semantic_stack.pop(3)
         A = self.find_operand(A)
         B = self.find_operand(B)
         temp = self.var_index
@@ -135,9 +142,21 @@ class IntermediateCodeGenerator:
         pass
 
     def assign_action(self, token):
-        var, value = self.semantic_stack.pop(2)
-        self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + "," + str(self.var) + ",   )\n"
+        value, var = self.semantic_stack.pop(2)
+        value_element = self.find_operand(value)
+        if value_element[4] == 'num':
+            value = '#' + str(value_element[2])
+        self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + "," + str(var) + ",   )\n"
+        self.update_value(value_element[2], var)
         self.current_index += 1
+
+    def update_value(self, value, var):
+        element = self.find_operand(var)
+        try:
+            index = self.symbol_table.index(element)
+            self.symbol_table[index] = (element[0], element[1], value, element[3], element[4])
+        except ValueError:
+            self.temp_values[var] = value
 
     def pid_action(self, token):
         address = self.find_var_addr(token)
@@ -147,6 +166,7 @@ class IntermediateCodeGenerator:
     # element [1] is name
     # element [2] is value
     # element [3] is variable address
+    # element [4] is the type
     def find_addr(self, current_token):
         for element in self.symbol_table:
             if element[1] == current_token:
@@ -158,7 +178,6 @@ class IntermediateCodeGenerator:
                 return element[3]
 
     def find_by_addr(self, address_stack):
-        print(address_stack)
         for element in self.symbol_table:
             try:
                 if element[3] == address_stack:
