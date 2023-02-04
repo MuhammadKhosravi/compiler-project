@@ -1,8 +1,9 @@
 from Parser.stack import Stack
 
-#selection_stmt: "if" '(' expression ')' save statement "endif"  --> #jpf
 
-#"if" '(' expression ')' save statement "else" jpf_save statement "endif" --> #jp
+# selection_stmt: "if" '(' expression ')' save statement "endif"  --> #jpf
+
+# "if" '(' expression ')' save statement "else" jpf_save statement "endif" --> #jp
 
 class IntermediateCodeGenerator:
     def __init__(self, symbol_table):
@@ -27,12 +28,13 @@ class IntermediateCodeGenerator:
             '68': self.print_action,
             '69': self.label_action,
             '33': self.while_action,
-            '73': self.switch_action,
+            '75': self.switch_action,
             '36': self.finish_action,
             '40': self.out_action,
             '39': self.out_action,
             '46': self.relop_action,
-            '72': self.declare_id_action
+            '72': self.declare_id_action,
+            '73': self.end_declare_action
         }
 
     def code_gen(self, state, token=None):
@@ -46,12 +48,22 @@ class IntermediateCodeGenerator:
     def add_action(self, token):
         pass
 
-    #initialize a variable by zero and give an address to it
+    # TODO delete value part of symbol table for functions
+    # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
         address = self.find_addr(token)
-        index = self.symbol_table.index((address, token))
-        self.symbol_table[index] = (address, token, 0)
-        self.intermediate_code += str(self.current_index) + "\t(ASSIGN, #0, 508,   )"
+        try:
+            index = self.symbol_table.index((address, token))
+            self.symbol_table[index] = (address, token, 0, self.var_index)
+            self.intermediate_code += str(self.current_index) + "\t(ASSIGN, #0," + str(self.var_index) + ",   )\n"
+            self.var_index += 4
+            self.current_index += 1
+        except ValueError:
+            return
+
+    def end_declare_action(self, token):
+        self.semantic_stack.pop()
+
 
     def mult_action(self, token):
         pass
@@ -69,16 +81,26 @@ class IntermediateCodeGenerator:
         pass
 
     def assign_action(self, token):
-        pass
+        print(token)
 
     def pid_action(self, token):
-        print(token)
-        print(self.find_addr(token))
+        address = self.find_var_addr(token)
+        self.semantic_stack.push(address)
 
+    # element [0] is address in symbol table
+    # element [1] is name
+    # element [2] is value
+    # element [3] is variable address
     def find_addr(self, current_token):
-        for address, token in self.symbol_table:
-            if token == current_token:
-                return address
+        for element in self.symbol_table:
+            if element[1] == current_token:
+                return element[0]
+
+    def find_var_addr(self, current_token):
+        for element in self.symbol_table:
+            if element[1] == current_token:
+                return element[3]
+
     def print_action(self, token):
         pass
 

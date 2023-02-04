@@ -60,6 +60,9 @@ class Parser:
             self.do_action(current_action, current_entry, self.current_token)
 
             counter += 1
+        print(self.code_gen.intermediate_code)
+        print(self.code_gen.semantic_stack)
+        print(self.code_gen.symbol_table)
 
     def get_goto_non_terminal(self, row):
         non_terminal_list = []
