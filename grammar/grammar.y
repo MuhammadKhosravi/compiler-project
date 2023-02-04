@@ -92,9 +92,15 @@ mulop: op '*'
 factor: '(' expression ')'
 | var
 | call
-| NUM
+| num NUM
 ;
-call: declare_id pid ID '(' args ')'
+call: declare_id pid  ID '(' add_args args ')' end_args print
+;
+add_args: /* epsilon */
+;
+print: /* epsilon */
+;
+end_args: /* epsilon */
 ;
 args: arg_list
 | /* epsilon */
@@ -117,5 +123,7 @@ declare_id: /* epsilon */
 end_declare: /* epsilon */
 ;
 op: /* epsilon */
+;
+num: /* epsilon */
 ;
 %%

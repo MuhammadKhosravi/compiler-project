@@ -12,6 +12,7 @@ class IntermediateCodeGenerator:
         self.current_index = 0
         self.var_index = 500
         self.semantic_stack = Stack()
+        self.temp_values = dict()
         self.states = {
 
         }
@@ -49,7 +50,24 @@ class IntermediateCodeGenerator:
         action_function(**param)
 
     def add_action(self, token):
-        pass
+        print('___________________________________________________________________________')
+        A, op, B = self.semantic_stack.pop(3)
+        A = self.find_operand(A)
+        B = self.find_operand(B)
+        print(A)
+        temp = self.var_index
+        self.var_index += 4
+        if op == "+":
+            res = A[2] + B[2]
+            self.intermediate_code += str(self.current_index) + "\t(ADD, " + str(A[3]) + ", " + str(B[3]) + "," + str(
+                temp) + " )\n"
+        else:
+            res = A[2] - B[2]
+            self.intermediate_code += str(self.current_index) + "\t(SUB, " + str(A[3]) + ", " + str(B[3]) + "," + str(
+                temp) + " )\n"
+        self.temp_values[temp] = int(res)
+        self.semantic_stack.push(temp)
+        self.current_index += 1
 
     # TODO eliminate giving value to the function from intermediate code
     # initialize a variable by zero and give an address to it
@@ -74,11 +92,35 @@ class IntermediateCodeGenerator:
         self.semantic_stack.pop()
 
     def op_action(self, token):
-        print(token)
+        self.semantic_stack.push(token)
 
+    def find_operand(self, address):
+        print('address is ', address)
+        if address in self.temp_values:
+            temp = [None, None, self.temp_values[address], address, None]
+            return temp
+        else:
+            print(self.find_by_addr(address))
+            return self.find_by_addr(address)
+
+    # TODO add number in calculations
     def mult_action(self, token):
-        print(token)
-        print('HOYYY')
+        A, op, B = self.semantic_stack.pop(3)
+        A = self.find_operand(A)
+        B = self.find_operand(B)
+        temp = self.var_index
+        self.var_index += 4
+        if op == "*":
+            res = A[2] * B[2]
+            self.intermediate_code += str(self.current_index) + "\t(MULT, " + str(A[3]) + ", " + str(B[3]) + "," + str(
+                temp) + " )\n"
+        else:
+            res = A[2] // B[2]
+            self.intermediate_code += str(self.current_index) + "\t(DIV, " + str(A[3]) + ", " + str(B[3]) + "," + str(
+                temp) + " )\n"
+        self.temp_values[temp] = int(res)
+        self.semantic_stack.push(temp)
+        self.current_index += 1
 
     def save_action(self, token):
         pass
@@ -93,7 +135,9 @@ class IntermediateCodeGenerator:
         pass
 
     def assign_action(self, token):
-        pass
+        var, value = self.semantic_stack.pop(2)
+        self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + "," + str(self.var) + ",   )\n"
+        self.current_index += 1
 
     def pid_action(self, token):
         address = self.find_var_addr(token)
@@ -114,6 +158,7 @@ class IntermediateCodeGenerator:
                 return element[3]
 
     def find_by_addr(self, address_stack):
+        print(address_stack)
         for element in self.symbol_table:
             try:
                 if element[3] == address_stack:

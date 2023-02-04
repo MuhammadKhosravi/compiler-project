@@ -63,6 +63,7 @@ class Parser:
         print(self.code_gen.intermediate_code)
         print(self.code_gen.semantic_stack)
         print(self.code_gen.symbol_table)
+        print(self.code_gen.temp_values)
 
     def get_goto_non_terminal(self, row):
         non_terminal_list = []
