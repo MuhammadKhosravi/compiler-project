@@ -66,7 +66,8 @@ class IntermediateCodeGenerator:
 
 
     def mult_action(self, token):
-        pass
+        print(token)
+        print('HOYYY')
 
     def save_action(self, token):
         pass
@@ -81,7 +82,7 @@ class IntermediateCodeGenerator:
         pass
 
     def assign_action(self, token):
-        print(token)
+        pass
 
     def pid_action(self, token):
         address = self.find_var_addr(token)

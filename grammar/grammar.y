@@ -10,8 +10,8 @@ declaration_list: declaration_list declaration
 declaration: var_declaration
 | fun_declaration 
 ;
-var_declaration: type_specifier declare_id pid ID end_declare';'
-| type_specifier declare_id pid ID '[' NUM ']' end_declare ';'
+var_declaration: type_specifier declare_id pid ID ';'
+| type_specifier declare_id pid ID '[' NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
@@ -80,14 +80,14 @@ relop: '<'
 additive_expression: additive_expression addop term
 | term
 ;
-addop: '+'
-| '-'
+addop: op '+'
+| op '-'
 ;
 term: term mulop factor
 | factor
 ;
-mulop: '*'
-| '/'
+mulop: op '*'
+| op '/'
 ;
 factor: '(' expression ')'
 | var
@@ -115,5 +115,7 @@ pid: /* epsilon */
 declare_id: /* epsilon */
 ;
 end_declare: /* epsilon */
+;
+op: /* epsilon */
 ;
 %%
