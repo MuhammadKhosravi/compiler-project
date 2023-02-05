@@ -4,6 +4,7 @@ class Scanner:
         self.language = language
         self.states = language.states
         self.symbol_table = [(i, language.KEYWORDS[i]) for i in range(len(language.KEYWORDS))]
+        self.symbol_table.append((11, 'output', None, 500, 'func'))
         self.errors = []
         self.current_line_index = (0, 0)
         self.current_comment_start = 0

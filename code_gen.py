@@ -10,9 +10,10 @@ class IntermediateCodeGenerator:
         self.symbol_table = symbol_table
         self.intermediate_code = ""
         self.current_index = 0
-        self.var_index = 500
+        self.var_index = 504
         self.semantic_stack = Stack()
         self.temp_values = dict()
+        self.func_args = 0
         self.states = {
 
         }
@@ -26,28 +27,31 @@ class IntermediateCodeGenerator:
             '32': self.jp_action,  # not done
             '74': self.pid_action,  # done
             '42': self.assign_action,  # done
-            '64': self.print_action,  # not done
             '69': self.label_action,  # not done
             '33': self.while_action,  # not done
-            '65': self.switch_action,  # not done
+            '61': self.switch_action,  # not done
             '36': self.finish_action,  # not done
             '40': self.out_action,  # not done
             '39': self.out_action,  # not done
             '46': self.relop_action,  # not done
-            '75': self.declare_id_action,       #done
-            '76': self.end_declare_func_action, #done
-            '6': self.end_declare_var_action,   #done
-            '7': self.end_declare_var_action,   #done
-            '77': self.op_action,               #done
-            '78': self.num_action,              #done
-            '63': self.add_args_action     #not done
+            '75': self.declare_id_action,  # done
+            '76': self.end_declare_func_action,  # done
+            '6': self.end_declare_var_action,  # done
+            '7': self.end_declare_var_action,  # done
+            '77': self.op_action,  # done
+            '78': self.num_action,  # done
+            '63': self.add_args_action,  # not done
+            '62': self.end_args_action
         }
 
     def code_gen(self, state, token=None):
+
         if state not in self.actions.keys():
             return
         param = {'token': token} if token is not None else {}
         action_function = self.actions[state]
+        if state == '64':
+            self.print_action(token)
         # noinspection PyArgumentList
         action_function(**param)
 
@@ -92,6 +96,21 @@ class IntermediateCodeGenerator:
         except ValueError:
             return
 
+    # TODO correct state numbers of actions after table update
+    # TODO check if a function parameter can be another function return
+    def end_args_action(self, token):
+        self.semantic_stack.push(self.func_args)
+        self.semantic_stack.push(self.current_index)
+        func_address = self.semantic_stack.stack[-3 - self.func_args]
+        if func_address == 500:
+            self.semantic_stack.pop(2)
+            for i in range(self.func_args):
+                value = self.semantic_stack.pop()
+                self.intermediate_code += str(
+                    self.current_index) + "\t(PRINT, " +  str(value) + ", ,    )\n"
+            self.semantic_stack.pop()
+        self.func_args = 0
+
     def end_declare_func_action(self, token):
         stack_address = self.semantic_stack.pop()
         element = self.find_by_addr(stack_address)
@@ -130,7 +149,7 @@ class IntermediateCodeGenerator:
         self.current_index += 1
 
     def add_args_action(self, token):
-        print(token)
+        self.func_args += 1
 
     def save_action(self, token):
         pass
@@ -189,7 +208,9 @@ class IntermediateCodeGenerator:
                 continue
 
     def print_action(self, token):
-        pass
+        num_args = self.semantic_stack.stack[-2]
+        func_address = self.semantic_stack.stack[-3 - num_args]
+        print(func_address)
 
     def label_action(self, token):
         pass

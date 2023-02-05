@@ -50,7 +50,7 @@ selection_stmt: "if" '(' expression condition ')' save statement "endif"
 | "if" '(' expression condition ')' save statement "else" jpf_save statement "endif"
 ;
 
-iteration_stmt: "while" label '(' expression ')' save statement
+iteration_stmt: "while" label '(' expression condition')' save statement
 ;
 return_stmt: "return" ';'
 | "return" expression ';'
@@ -94,13 +94,9 @@ factor: '(' expression ')'
 | call
 | num NUM
 ;
-call: declare_id pid  ID '(' args add_args ')' end_args print
+call: declare_id pid  ID '(' args add_args ')'
 ;
 add_args: /* epsilon */
-;
-print: /* epsilon */
-;
-end_args: /* epsilon */
 ;
 args: arg_list
 | /* epsilon */
