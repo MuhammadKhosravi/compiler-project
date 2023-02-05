@@ -21,9 +21,9 @@ class IntermediateCodeGenerator:
             '9': self.endfunc_action,  # not done
             '50': self.add_action,  # done
             '54': self.mult_action,  # done
-            '67': self.save_action,  # not done
-            '70': self.jpf_save_action,  # not done
-            '31': self.jpf_action,  # not done
+            '70': self.save_action,  # done
+            '71': self.jpf_save_action,  # not done
+            '31': self.jpf_action,  # done
             '32': self.jp_action,  # not done
             '74': self.pid_action,  # done
             '42': self.assign_action,  # done
@@ -33,15 +33,15 @@ class IntermediateCodeGenerator:
             '36': self.finish_action,  # not done
             '40': self.out_action,  # not done
             '39': self.out_action,  # not done
-            '46': self.relop_action,  # not done
             '75': self.declare_id_action,  # done
             '76': self.end_declare_func_action,  # done
             '6': self.end_declare_var_action,  # done
             '7': self.end_declare_var_action,  # done
             '77': self.op_action,  # done
             '78': self.num_action,  # done
-            '63': self.add_args_action,  # not done
-            '62': self.end_args_action
+            '63': self.add_args_action,  # done
+            '62': self.end_args_action,  # done
+            '79': self.condition_action  # done
         }
 
     def code_gen(self, state, token=None):
@@ -83,7 +83,6 @@ class IntermediateCodeGenerator:
         self.semantic_stack.push(temp)
         self.current_index += 1
 
-    # TODO eliminate giving value to the function from intermediate code
     # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
         address = self.find_addr(token)
@@ -107,7 +106,8 @@ class IntermediateCodeGenerator:
             for i in range(self.func_args):
                 value = self.semantic_stack.pop()
                 self.intermediate_code += str(
-                    self.current_index) + "\t(PRINT, " +  str(value) + ", ,    )\n"
+                    self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
+                self.current_index += 1
             self.semantic_stack.pop()
         self.func_args = 0
 
@@ -116,12 +116,39 @@ class IntermediateCodeGenerator:
         element = self.find_by_addr(stack_address)
         index = self.symbol_table.index(element)
         self.symbol_table[index] = (element[0], element[1], None, element[3], 'func')
+        self.intermediate_code = "".join(self.intermediate_code.split('\n').pop(-1))
+        self.current_index -= 1
 
     def end_declare_var_action(self, token):
         self.semantic_stack.pop()
 
     def op_action(self, token):
         self.semantic_stack.push(token)
+
+    def condition_action(self, token):
+        b, op, a = self.semantic_stack.pop(3)
+        a = self.find_operand(a)
+        b = self.find_operand(b)
+        temp = self.var_index
+        self.var_index += 4
+        if op == '==':
+            if a[2] == b[2]:
+                value = 1
+            else:
+                value = 0
+            self.intermediate_code += str(self.current_index) + "\t(EQ, " + str(a[3]) + ", " + str(b[3]) + "," + str(
+                temp) + " )\n"
+        else:
+            if a[2] < b[2]:
+                value = 1
+            else:
+                value = 0
+            self.intermediate_code += str(self.current_index) + "\t(LT, " + str(a[3]) + ", " + str(b[3]) + "," + str(
+                temp) + " )\n"
+
+        self.temp_values[temp] = value
+        self.semantic_stack.push(temp)
+        self.current_index += 1
 
     def find_operand(self, address):
         if address in self.temp_values:
@@ -152,16 +179,31 @@ class IntermediateCodeGenerator:
         self.func_args += 1
 
     def save_action(self, token):
-        pass
+        self.semantic_stack.push(self.current_index)
+        self.current_index += 1
 
     def jpf_save_action(self, token):
-        pass
+        index, jump = self.semantic_stack.pop(2)
+        list_instructions = self.intermediate_code.split('\n')
+        list_instructions.insert(index,
+                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index + 1) + ",  )")
+        self.semantic_stack.push(self.current_index)
+        self.current_index += 1
+        self.intermediate_code = "\n".join(list_instructions)
 
     def jpf_action(self, token):
-        pass
+        index, jump = self.semantic_stack.pop(2)
+        list_instructions = self.intermediate_code.split('\n')
+        list_instructions.insert(index,
+                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index) + ",  )")
+        self.intermediate_code = "\n".join(list_instructions)
 
     def jp_action(self, token):
-        pass
+        index = self.semantic_stack.pop(1)
+        list_instructions = self.intermediate_code.split('\n')
+        list_instructions.insert(index,
+                                 str(index) + "\t(JP, " + str(self.current_index) +", ,  )")
+        self.intermediate_code = "\n".join(list_instructions)
 
     def assign_action(self, token):
         value, var = self.semantic_stack.pop(2)
@@ -203,7 +245,10 @@ class IntermediateCodeGenerator:
         for element in self.symbol_table:
             try:
                 if element[3] == address_stack:
-                    return element
+                    if element[4] == 'num':
+                        return [element[0], element[1], element[2], '#' + str(element[2]), element[4]]
+                    else:
+                        return element
             except IndexError:
                 continue
 
