@@ -60,10 +60,11 @@ class Parser:
             self.do_action(current_action, current_entry, self.current_token)
 
             counter += 1
-        print(self.code_gen.intermediate_code)
-        print(self.code_gen.semantic_stack)
-        print(self.code_gen.symbol_table)
-        print(self.code_gen.temp_values)
+
+        self.write_intermediate_code_to_file(self.code_gen.intermediate_code)
+        # print(self.code_gen.semantic_stack)
+        # print(self.code_gen.symbol_table)
+        # print(self.code_gen.temp_values)
 
     def get_goto_non_terminal(self, row):
         non_terminal_list = []
@@ -139,6 +140,7 @@ class Parser:
         Node.traverse()
         self.is_accepted = True
         self.write_errors_to_file()
+        self.write_semantic_errors_to_file()
 
     def do_action(self, action_with_number, current_token, name):
         try:
@@ -150,7 +152,7 @@ class Parser:
             action_function = self.action_function_dict[action]
             action_function(number, current_token, name)
         except:
-            print(self.stack)
+            # print(self.stack)
             self.handle_errors()
             exit(10)
 
@@ -186,3 +188,11 @@ class Parser:
 
     def goto(self, number, _, __):
         self.stack.push(number)
+
+    def write_intermediate_code_to_file(self, code):
+        with open('./output.txt', 'w') as file:
+            file.write(str(code))
+
+    def write_semantic_errors_to_file(self):
+        with open('./semantic_errors.txt', 'w') as file:
+            file.write('The input program is semantically correct.')

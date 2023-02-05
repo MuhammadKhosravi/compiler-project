@@ -5,3 +5,5 @@ symbol_table.txt
 syntax_errors.txt
 parse_tree.txt
 tokens.txt
+output.txt
+semantic_errors.txt
