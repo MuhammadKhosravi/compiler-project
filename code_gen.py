@@ -34,12 +34,13 @@ class IntermediateCodeGenerator:
             '40': self.out_action,  # not done
             '39': self.out_action,  # not done
             '46': self.relop_action,  # not done
-            '75': self.declare_id_action,  # done
-            '76': self.end_declare_func_action,  # done
-            '6': self.end_declare_var_action,  # done
-            '7': self.end_declare_var_action,  # done
-            '77': self.op_action,  # done
-            '78': self.num_action
+            '75': self.declare_id_action,       #done
+            '76': self.end_declare_func_action, #done
+            '6': self.end_declare_var_action,   #done
+            '7': self.end_declare_var_action,   #done
+            '77': self.op_action,               #done
+            '78': self.num_action,              #done
+            '63': self.add_args_action     #not done
         }
 
     def code_gen(self, state, token=None):
@@ -110,7 +111,6 @@ class IntermediateCodeGenerator:
         else:
             return self.find_by_addr(address)
 
-    # TODO add number in calculations
     def mult_action(self, token):
         B, op, A = self.semantic_stack.pop(3)
         A = self.find_operand(A)
@@ -128,6 +128,9 @@ class IntermediateCodeGenerator:
         self.temp_values[temp] = int(res)
         self.semantic_stack.push(temp)
         self.current_index += 1
+
+    def add_args_action(self, token):
+        print(token)
 
     def save_action(self, token):
         pass

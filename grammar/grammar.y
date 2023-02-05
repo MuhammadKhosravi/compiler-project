@@ -46,8 +46,8 @@ expression_stmt: expression ';'
 | "break" ';'
 | ';'
 ;
-selection_stmt: "if" '(' expression ')' save statement "endif"
-| "if" '(' expression ')' save statement "else" jpf_save statement "endif"
+selection_stmt: "if" '(' expression condition ')' save statement "endif"
+| "if" '(' expression condition ')' save statement "else" jpf_save statement "endif"
 ;
 
 iteration_stmt: "while" label '(' expression ')' save statement
@@ -74,8 +74,8 @@ var: declare_id pid ID
 simple_expression: additive_expression relop additive_expression
 | additive_expression
 ;
-relop: '<'
-| "=="
+relop: op '<'
+| op "=="
 ;
 additive_expression: additive_expression addop term
 | term
@@ -94,7 +94,7 @@ factor: '(' expression ')'
 | call
 | num NUM
 ;
-call: declare_id pid  ID '(' add_args args ')' end_args print
+call: declare_id pid  ID '(' args add_args ')' end_args print
 ;
 add_args: /* epsilon */
 ;
@@ -125,5 +125,7 @@ end_declare: /* epsilon */
 op: /* epsilon */
 ;
 num: /* epsilon */
+;
+condition: /* epsilon */
 ;
 %%
