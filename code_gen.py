@@ -18,7 +18,7 @@ class IntermediateCodeGenerator:
 
         }
         self.actions = {
-            '9': self.endfunc_action,  # not done
+            '100': self.endfunc_action,  # not done
             '50': self.add_action,  # done
             '54': self.mult_action,  # done
             '70': self.save_action,  # done
@@ -27,12 +27,12 @@ class IntermediateCodeGenerator:
             '32': self.jp_action,  # not done
             '74': self.pid_action,  # done
             '42': self.assign_action,  # done
-            '69': self.label_action,  # not done
-            '33': self.while_action,  # not done
-            '61': self.switch_action,  # not done
-            '36': self.finish_action,  # not done
-            '40': self.out_action,  # not done
-            '39': self.out_action,  # not done
+            '101': self.label_action,  # not done
+            '102': self.while_action,  # not done
+            '103': self.switch_action,  # not done
+            '104': self.finish_action,  # not done
+            '105': self.out_action,  # not done
+            '106': self.out_action,  # not done
             '75': self.declare_id_action,  # done
             '76': self.end_declare_func_action,  # done
             '6': self.end_declare_var_action,  # done
@@ -45,7 +45,6 @@ class IntermediateCodeGenerator:
         }
 
     def code_gen(self, state, token=None):
-
         if state not in self.actions.keys():
             return
         param = {'token': token} if token is not None else {}
@@ -53,6 +52,8 @@ class IntermediateCodeGenerator:
         if state == '64':
             self.print_action(token)
         # noinspection PyArgumentList
+        print('stack:', self.semantic_stack,'\ncode:\n',  self.intermediate_code,'\ncurrent action:',  action_function.__name__)
+        print('--------------------------------------------------------------------------------------------------------')
         action_function(**param)
 
     # element [0] is address in symbol table
@@ -213,6 +214,7 @@ class IntermediateCodeGenerator:
         self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + "," + str(var) + ",   )\n"
         self.update_value(value_element[2], var)
         self.current_index += 1
+        self.semantic_stack.push(value)
 
     def update_value(self, value, var):
         element = self.find_operand(var)

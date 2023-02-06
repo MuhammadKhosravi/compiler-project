@@ -11,7 +11,7 @@ declaration: var_declaration
 | fun_declaration 
 ;
 var_declaration: type_specifier declare_id pid ID ';'
-| type_specifier declare_id pid ID '[' NUM ']' ';'
+| type_specifier declare_id pid ID '[' size NUM ']' ';'
 ;
 type_specifier: "int" 
 | "void"
@@ -42,7 +42,7 @@ statement: expression_stmt
 | return_stmt
 | switch_stmt
 ;
-expression_stmt: expression ';'
+expression_stmt: expression finish_exp';'
 | "break" ';'
 | ';'
 ;
@@ -123,5 +123,9 @@ op: /* epsilon */
 num: /* epsilon */
 ;
 condition: /* epsilon */
+;
+size:  /* epsilon */
+;
+finish_exp: /* epsilon */
 ;
 %%
