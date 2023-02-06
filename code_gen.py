@@ -27,8 +27,8 @@ class IntermediateCodeGenerator:
             '32': self.jp_action,  # done
             '72': self.pid_action,  # done
             '42': self.assign_action,  # done
-            '101': self.label_action,  # not done
-            '102': self.while_action,  # not done
+            '70': self.label_action,  # not done
+            '33': self.while_action,  # not done
             '103': self.switch_action,  # not done
             '104': self.finish_action,  # not done
             '105': self.out_action,  # not done
@@ -110,6 +110,7 @@ class IntermediateCodeGenerator:
         index = self.find_operand(index)
         address = start + (index[2] + 1) * 4
         self.semantic_stack.push(address)
+
     # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
         address = self.find_addr(token)
@@ -137,7 +138,7 @@ class IntermediateCodeGenerator:
                 self.current_index += 1
             self.semantic_stack.pop()
         self.func_args = 0
-        #because we pop values before ; this is a temp value
+        # because we pop values before ; this is a temp value
         self.semantic_stack.push(0)
 
     def end_declare_func_action(self, token):
@@ -289,10 +290,17 @@ class IntermediateCodeGenerator:
         print(func_address)
 
     def label_action(self, token):
-        print(token)
+        self.semantic_stack.push(self.current_index)
 
     def while_action(self, token):
-        pass
+        top, top_1, top_2 = self.semantic_stack.pop(3)
+        list_instructions = self.intermediate_code.split('\n')
+        list_instructions.insert(top,
+                                 str(top) + "\t(JPF, " + str(top_1) + ", " + str(self.current_index + 1) + ",  )")
+        list_instructions.insert(self.current_index, str(self.current_index)
+                                 + "\t(JP, " + str(top_2) + ",  " + ",  )")
+        self.intermediate_code = "\n".join(list_instructions)
+        self.current_index += 1
 
     def switch_action(self, token):
         pass
