@@ -31,7 +31,8 @@ class IntermediateCodeGenerator:
             '70': self.label_action,  # not done
             '33': self.while_action,  # not done
             '29': self.break_action,
-            '103': self.switch_action,  # not done
+            '71': self.switch_action,  # not done
+            '80': self.case_condition_action,
             '104': self.finish_action,  # not done
             '105': self.out_action,  # not done
             '106': self.out_action,  # not done
@@ -45,7 +46,10 @@ class IntermediateCodeGenerator:
             '77': self.condition_action,  # done
             '79': self.finish_exp_action,  # done
             '78': self.size_arr_action,  # done
-            '45': self.arr_find_action
+            '45': self.arr_find_action,
+            '81': self.fake_save_action,
+            '38': self.jpf_save_action
+
         }
 
     def code_gen(self, state, token=None):
@@ -56,12 +60,8 @@ class IntermediateCodeGenerator:
         if state == '64':
             self.print_action(token)
         # noinspection PyArgumentList
-        print('stack:', self.semantic_stack, '\ncode:\n', self.intermediate_code, '\ncurrent action:',
-              action_function.__name__)
 
         action_function(**param)
-        print(
-            '--------------------------------------------------------------------------------------------------------')
 
     # element [0] is address in symbol table
     # element [1] is name
@@ -82,7 +82,6 @@ class IntermediateCodeGenerator:
         arr = self.find_by_addr(address)
         index = arr[0]
         self.intermediate_code = "\n".join(self.intermediate_code.split('\n').pop(-1))
-        print('SIZE: ', self.semantic_stack)
         self.current_index -= 1
         for i in range(size):
             self.symbol_table.append((index, arr[1] + '[' + str(i) + ']', 0, self.var_index, 'arr'))
@@ -303,7 +302,7 @@ class IntermediateCodeGenerator:
     def while_action(self, token):
         last_reference, index = self.reference_stack.pop()
         self.temp_values[last_reference] = self.current_index + 1
-        value =  self.temp_values[last_reference]
+        value = self.temp_values[last_reference]
         top, top_1, top_2 = self.semantic_stack.pop(3)
         list_instructions = self.intermediate_code.split('\n')
         list_instructions.insert(index,
@@ -320,22 +319,30 @@ class IntermediateCodeGenerator:
         self.intermediate_code += str(self.current_index) + "\t(JP, @" + str(last_reference) + ",  " + ",  )"
         self.current_index += 1
 
-
     def switch_action(self, token):
-        pass
+        self.label_action(token)
 
+    def fake_save_action(self, token):
+        temp = self.var_index
+        self.var_index += 4
+        self.temp_values[temp] = 0
+        self.semantic_stack.push(temp)
+
+    def case_condition_action(self, token):
+        temp = self.var_index
+        self.var_index += 4
+        expression_result = self.semantic_stack.get_top()
+        self.intermediate_code += str(self.current_index) + f"\t(EQ, #{token}," + str(
+            expression_result) + f", {temp})"
 
     def finish_action(self, token):
         pass
 
-
     def out_action(self, token):
         pass
 
-
     def endfunc_action(self, token):
         pass
-
 
     def relop_action(self, token):
         pass

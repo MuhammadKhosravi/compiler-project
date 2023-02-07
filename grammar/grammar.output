@@ -54,12 +54,12 @@ Grammar
    34 return_stmt: "return" ';'
    35            | "return" expression ';'
 
-   36 switch_stmt: switch "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
 
    37 case_stmts: case_stmts case_stmt
    38           | ε
 
-   39 case_stmt: jpf_save "case" NUM save ':' statement_list
+   39 case_stmt: jpf_save "case" case_condition NUM save ':' statement_list
 
    40 default_stmt: jpf_save "default" ':' statement_list
    41             | ε
@@ -126,6 +126,10 @@ Grammar
    78 size: ε
 
    79 finish_exp: ε
+
+   80 case_condition: ε
+
+   81 fake_save: ε
 
 
 Terminals, with rules where they appear
@@ -305,6 +309,12 @@ Nonterminals, with rules where they appear
     finish_exp (78)
         on left: 79
         on right: 28
+    case_condition (79)
+        on left: 80
+        on right: 39
+    fake_save (80)
+        on left: 81
+        on right: 36
 
 
 State 0
@@ -726,7 +736,7 @@ State 40
    33 iteration_stmt: • "while" label '(' expression condition ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • switch "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • declare_id pid ID
@@ -1034,7 +1044,7 @@ State 62
 
 State 63
 
-   36 switch_stmt: switch • "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: switch • "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
 
     "switch"  shift, and go to state 80
 
@@ -1291,7 +1301,7 @@ State 79
 
 State 80
 
-   36 switch_stmt: switch "switch" • '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: switch "switch" • '(' expression ')' fake_save '{' case_stmts default_stmt '}'
 
     '('  shift, and go to state 100
 
@@ -1487,7 +1497,7 @@ State 99
 
 State 100
 
-   36 switch_stmt: switch "switch" '(' • expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: switch "switch" '(' • expression ')' fake_save '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • declare_id pid ID
@@ -1563,7 +1573,7 @@ State 104
 
 State 105
 
-   36 switch_stmt: switch "switch" '(' expression • ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: switch "switch" '(' expression • ')' fake_save '{' case_stmts default_stmt '}'
 
     ')'  shift, and go to state 110
 
@@ -1669,9 +1679,12 @@ State 109
 
 State 110
 
-   36 switch_stmt: switch "switch" '(' expression ')' • '{' case_stmts default_stmt '}'
+   36 switch_stmt: switch "switch" '(' expression ')' • fake_save '{' case_stmts default_stmt '}'
+   81 fake_save: ε •
 
-    '{'  shift, and go to state 117
+    $default  reduce using rule 81 (fake_save)
+
+    fake_save  go to state 117
 
 
 State 111
@@ -1727,7 +1740,7 @@ State 115
    33 iteration_stmt: • "while" label '(' expression condition ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • switch "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • declare_id pid ID
@@ -1790,13 +1803,9 @@ State 116
 
 State 117
 
-   36 switch_stmt: switch "switch" '(' expression ')' '{' • case_stmts default_stmt '}'
-   37 case_stmts: • case_stmts case_stmt
-   38           | ε •
+   36 switch_stmt: switch "switch" '(' expression ')' fake_save • '{' case_stmts default_stmt '}'
 
-    $default  reduce using rule 38 (case_stmts)
-
-    case_stmts  go to state 123
+    '{'  shift, and go to state 123
 
 
 State 118
@@ -1877,7 +1886,7 @@ State 122
    33               | "while" label '(' expression condition ')' save • statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • switch "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • declare_id pid ID
@@ -1930,19 +1939,13 @@ State 122
 
 State 123
 
-   36 switch_stmt: switch "switch" '(' expression ')' '{' case_stmts • default_stmt '}'
-   37 case_stmts: case_stmts • case_stmt
-   39 case_stmt: • jpf_save "case" NUM save ':' statement_list
-   40 default_stmt: • jpf_save "default" ':' statement_list
-   41             | ε •  ['}']
-   69 jpf_save: ε •  ["case", "default"]
+   36 switch_stmt: switch "switch" '(' expression ')' fake_save '{' • case_stmts default_stmt '}'
+   37 case_stmts: • case_stmts case_stmt
+   38           | ε •
 
-    '}'       reduce using rule 41 (default_stmt)
-    $default  reduce using rule 69 (jpf_save)
+    $default  reduce using rule 38 (case_stmts)
 
-    case_stmt     go to state 129
-    default_stmt  go to state 130
-    jpf_save      go to state 131
+    case_stmts  go to state 129
 
 
 State 124
@@ -1973,7 +1976,7 @@ State 127
 
     $default  reduce using rule 69 (jpf_save)
 
-    jpf_save  go to state 132
+    jpf_save  go to state 130
 
 
 State 128
@@ -1985,28 +1988,22 @@ State 128
 
 State 129
 
-   37 case_stmts: case_stmts case_stmt •
+   36 switch_stmt: switch "switch" '(' expression ')' fake_save '{' case_stmts • default_stmt '}'
+   37 case_stmts: case_stmts • case_stmt
+   39 case_stmt: • jpf_save "case" case_condition NUM save ':' statement_list
+   40 default_stmt: • jpf_save "default" ':' statement_list
+   41             | ε •  ['}']
+   69 jpf_save: ε •  ["case", "default"]
 
-    $default  reduce using rule 37 (case_stmts)
+    '}'       reduce using rule 41 (default_stmt)
+    $default  reduce using rule 69 (jpf_save)
+
+    case_stmt     go to state 131
+    default_stmt  go to state 132
+    jpf_save      go to state 133
 
 
 State 130
-
-   36 switch_stmt: switch "switch" '(' expression ')' '{' case_stmts default_stmt • '}'
-
-    '}'  shift, and go to state 133
-
-
-State 131
-
-   39 case_stmt: jpf_save • "case" NUM save ':' statement_list
-   40 default_stmt: jpf_save • "default" ':' statement_list
-
-    "case"     shift, and go to state 134
-    "default"  shift, and go to state 135
-
-
-State 132
 
    17 compound_stmt: • '{' local_declarations statement_list '}'
    22 statement: • expression_stmt
@@ -2024,7 +2021,7 @@ State 132
    33 iteration_stmt: • "while" label '(' expression condition ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • switch "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • declare_id pid ID
@@ -2057,7 +2054,7 @@ State 132
     $default  reduce using rule 71 (switch)
 
     compound_stmt        go to state 49
-    statement            go to state 136
+    statement            go to state 134
     expression_stmt      go to state 51
     selection_stmt       go to state 52
     iteration_stmt       go to state 53
@@ -2075,45 +2072,75 @@ State 132
     num                  go to state 65
 
 
+State 131
+
+   37 case_stmts: case_stmts case_stmt •
+
+    $default  reduce using rule 37 (case_stmts)
+
+
+State 132
+
+   36 switch_stmt: switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt • '}'
+
+    '}'  shift, and go to state 135
+
+
 State 133
 
-   36 switch_stmt: switch "switch" '(' expression ')' '{' case_stmts default_stmt '}' •
+   39 case_stmt: jpf_save • "case" case_condition NUM save ':' statement_list
+   40 default_stmt: jpf_save • "default" ':' statement_list
 
-    $default  reduce using rule 36 (switch_stmt)
+    "case"     shift, and go to state 136
+    "default"  shift, and go to state 137
 
 
 State 134
 
-   39 case_stmt: jpf_save "case" • NUM save ':' statement_list
+   32 selection_stmt: "if" '(' expression condition ')' save statement "else" jpf_save statement • "endif"
 
-    NUM  shift, and go to state 137
+    "endif"  shift, and go to state 138
 
 
 State 135
 
-   40 default_stmt: jpf_save "default" • ':' statement_list
+   36 switch_stmt: switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}' •
 
-    ':'  shift, and go to state 138
+    $default  reduce using rule 36 (switch_stmt)
 
 
 State 136
 
-   32 selection_stmt: "if" '(' expression condition ')' save statement "else" jpf_save statement • "endif"
+   39 case_stmt: jpf_save "case" • case_condition NUM save ':' statement_list
+   80 case_condition: ε •
 
-    "endif"  shift, and go to state 139
+    $default  reduce using rule 80 (case_condition)
+
+    case_condition  go to state 139
 
 
 State 137
 
-   39 case_stmt: jpf_save "case" NUM • save ':' statement_list
-   68 save: ε •
+   40 default_stmt: jpf_save "default" • ':' statement_list
 
-    $default  reduce using rule 68 (save)
-
-    save  go to state 140
+    ':'  shift, and go to state 140
 
 
 State 138
+
+   32 selection_stmt: "if" '(' expression condition ')' save statement "else" jpf_save statement "endif" •
+
+    $default  reduce using rule 32 (selection_stmt)
+
+
+State 139
+
+   39 case_stmt: jpf_save "case" case_condition • NUM save ':' statement_list
+
+    NUM  shift, and go to state 141
+
+
+State 140
 
    20 statement_list: • statement_list statement
    21               | ε •
@@ -2121,24 +2148,20 @@ State 138
 
     $default  reduce using rule 21 (statement_list)
 
-    statement_list  go to state 141
-
-
-State 139
-
-   32 selection_stmt: "if" '(' expression condition ')' save statement "else" jpf_save statement "endif" •
-
-    $default  reduce using rule 32 (selection_stmt)
-
-
-State 140
-
-   39 case_stmt: jpf_save "case" NUM save • ':' statement_list
-
-    ':'  shift, and go to state 142
+    statement_list  go to state 142
 
 
 State 141
+
+   39 case_stmt: jpf_save "case" case_condition NUM • save ':' statement_list
+   68 save: ε •
+
+    $default  reduce using rule 68 (save)
+
+    save  go to state 143
+
+
+State 142
 
    17 compound_stmt: • '{' local_declarations statement_list '}'
    20 statement_list: statement_list • statement
@@ -2156,7 +2179,7 @@ State 141
    33 iteration_stmt: • "while" label '(' expression condition ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • switch "switch" '(' expression ')' '{' case_stmts default_stmt '}'
+   36 switch_stmt: • switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
    40 default_stmt: jpf_save "default" ':' statement_list •  ['}']
    42 expression: • var '=' expression
    43           | • simple_expression
@@ -2209,18 +2232,25 @@ State 141
     num                  go to state 65
 
 
-State 142
+State 143
+
+   39 case_stmt: jpf_save "case" case_condition NUM save • ':' statement_list
+
+    ':'  shift, and go to state 144
+
+
+State 144
 
    20 statement_list: • statement_list statement
    21               | ε •
-   39 case_stmt: jpf_save "case" NUM save ':' • statement_list
+   39 case_stmt: jpf_save "case" case_condition NUM save ':' • statement_list
 
     $default  reduce using rule 21 (statement_list)
 
-    statement_list  go to state 143
+    statement_list  go to state 145
 
 
-State 143
+State 145
 
    17 compound_stmt: • '{' local_declarations statement_list '}'
    20 statement_list: statement_list • statement
@@ -2238,8 +2268,8 @@ State 143
    33 iteration_stmt: • "while" label '(' expression condition ')' save statement
    34 return_stmt: • "return" ';'
    35            | • "return" expression ';'
-   36 switch_stmt: • switch "switch" '(' expression ')' '{' case_stmts default_stmt '}'
-   39 case_stmt: jpf_save "case" NUM save ':' statement_list •  ['}', "case", "default"]
+   36 switch_stmt: • switch "switch" '(' expression ')' fake_save '{' case_stmts default_stmt '}'
+   39 case_stmt: jpf_save "case" case_condition NUM save ':' statement_list •  ['}', "case", "default"]
    42 expression: • var '=' expression
    43           | • simple_expression
    44 var: • declare_id pid ID
