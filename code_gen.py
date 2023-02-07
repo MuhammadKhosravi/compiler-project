@@ -14,6 +14,7 @@ class IntermediateCodeGenerator:
         self.semantic_stack = Stack()
         self.temp_values = dict()
         self.func_args = 0
+        self.reference_stack = Stack()
         self.states = {
 
         }
@@ -29,6 +30,7 @@ class IntermediateCodeGenerator:
             '42': self.assign_action,  # done
             '70': self.label_action,  # not done
             '33': self.while_action,  # not done
+            '29': self.break_action,
             '103': self.switch_action,  # not done
             '104': self.finish_action,  # not done
             '105': self.out_action,  # not done
@@ -81,6 +83,7 @@ class IntermediateCodeGenerator:
         index = arr[0]
         self.intermediate_code = "\n".join(self.intermediate_code.split('\n').pop(-1))
         print('SIZE: ', self.semantic_stack)
+        self.current_index -= 1
         for i in range(size):
             self.symbol_table.append((index, arr[1] + '[' + str(i) + ']', 0, self.var_index, 'arr'))
             self.intermediate_code += str(self.current_index) + "\t(ASSIGN, #0," + str(self.var_index) + ",   )\n"
@@ -232,7 +235,7 @@ class IntermediateCodeGenerator:
         index = self.semantic_stack.pop(1)
         list_instructions = self.intermediate_code.split('\n')
         list_instructions.insert(index,
-                                 str(index) + "\t(JP, " + str(self.current_index) + ", ,  )")
+                                 str(index) + "\t(JP, " + str(self.current_index) + ", ,  )\n")
         self.intermediate_code = "\n".join(list_instructions)
 
     def assign_action(self, token):
@@ -291,33 +294,48 @@ class IntermediateCodeGenerator:
 
     def label_action(self, token):
         self.semantic_stack.push(self.current_index)
+        temp = self.var_index
+        self.var_index += 4
+        self.reference_stack.push((temp, self.current_index))
+        self.temp_values[temp] = 0
+        self.current_index += 1
 
     def while_action(self, token):
+        last_reference, index = self.reference_stack.pop()
+        self.temp_values[last_reference] = self.current_index + 1
+        value =  self.temp_values[last_reference]
         top, top_1, top_2 = self.semantic_stack.pop(3)
         list_instructions = self.intermediate_code.split('\n')
+        list_instructions.insert(index,
+                                 str(index) + "\t(ASSIGN, #" + str(value) + ", " + str(last_reference) + ",  )")
         list_instructions.insert(top,
                                  str(top) + "\t(JPF, " + str(top_1) + ", " + str(self.current_index + 1) + ",  )")
         list_instructions.insert(self.current_index, str(self.current_index)
-                                 + "\t(JP, " + str(top_2) + ",  " + ",  )")
+                                 + "\t(JP, " + str(top_2) + ",  " + ",  )\n")
         self.intermediate_code = "\n".join(list_instructions)
         self.current_index += 1
+
+    def break_action(self, token):
+        last_reference, _ = self.reference_stack.get_top()
+        self.intermediate_code += str(self.current_index) + "\t(JP, @" + str(last_reference) + ",  " + ",  )"
+        self.current_index += 1
+
 
     def switch_action(self, token):
         pass
 
+
     def finish_action(self, token):
         pass
+
 
     def out_action(self, token):
         pass
 
+
     def endfunc_action(self, token):
         pass
 
+
     def relop_action(self, token):
         pass
-
-
-if __name__ == '__main__':
-    cg = IntermediateCodeGenerator()
-    cg.code_gen('pid', 'salam')

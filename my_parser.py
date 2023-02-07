@@ -29,6 +29,7 @@ class Parser:
         self.firsts = all_table_info['first']
         self.follows = all_table_info['follow']
         self.grammar = all_table_info['grammar']
+        print(self.grammar)
         self.scanner = scanner
         self.stack = Stack()
         self.action_function_dict = {'shift': self.shift, 'reduce': self.reduce, 'goto': self.goto,
@@ -190,8 +191,15 @@ class Parser:
         self.stack.push(number)
 
     def write_intermediate_code_to_file(self, code):
+        def sort_code(code):
+            l = code.split('\n')
+            l = list(filter(lambda x: x, l))
+            l.sort(key=lambda x: int(x.split('\t')[0]))
+            return '\n'.join(l)
+
         with open('./output.txt', 'w') as file:
-            file.write(str(code))
+            prepared_code = sort_code(code)
+            file.write(prepared_code)
 
     def write_semantic_errors_to_file(self):
         with open('./semantic_errors.txt', 'w') as file:
