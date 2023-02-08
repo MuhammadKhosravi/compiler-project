@@ -29,7 +29,6 @@ class Parser:
         self.firsts = all_table_info['first']
         self.follows = all_table_info['follow']
         self.grammar = all_table_info['grammar']
-        print(self.grammar)
         self.scanner = scanner
         self.stack = Stack()
         self.action_function_dict = {'shift': self.shift, 'reduce': self.reduce, 'goto': self.goto,
@@ -57,6 +56,11 @@ class Parser:
                     current_action = self.parse_table2[str(stack.get_top())][current_entry]
                 except:
                     current_action = None
+            print('token ', current_entry, ' with action', current_action)
+            print('current state is ', self.stack.get_top())
+            for i in range(1, self.stack.size, 3):
+                print(self.stack.stack[i], sep=', ')
+            print('----------------------------------------------------------------')
 
             self.do_action(current_action, current_entry, self.current_token)
 

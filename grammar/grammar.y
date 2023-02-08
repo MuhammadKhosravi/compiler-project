@@ -55,7 +55,7 @@ iteration_stmt: "while" label '(' expression condition')' save statement
 return_stmt: "return" ';'
 | "return" expression ';'
 ;
-switch_stmt: switch "switch" '('expression ')' fake_save '{' case_stmts default_stmt '}'
+switch_stmt: start_switch "switch" '('expression ')' fake_save '{' case_stmts default_stmt '}'
 ;
 case_stmts: case_stmts case_stmt
 | /* epsilon */
@@ -110,7 +110,7 @@ jpf_save: /* epsilon */
 ;
 label: /* epsilon */
 ;
-switch: /* epsilon */
+start_switch: /* epsilon */
 ;
 pid: /* epsilon */
 ;
