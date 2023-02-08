@@ -119,7 +119,6 @@ class IntermediateCodeGenerator:
         self.current_index += 1
 
     def arr_find_action(self, token):
-        print('Symbol_table:', self.symbol_table)
         index, start = self.semantic_stack.pop(2)
         index = self.find_operand(index)
         temp1 = self.var_index
@@ -141,7 +140,6 @@ class IntermediateCodeGenerator:
         self.arr_vals[temp3] = temp3
     # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
-        print(token)
         address = self.find_addr(token)
         try:
             index = self.symbol_table.index((address, token))
@@ -162,9 +160,7 @@ class IntermediateCodeGenerator:
             self.semantic_stack.pop(2)
             for i in range(self.func_args):
                 value = self.semantic_stack.pop()
-                print(value)
                 element = self.find_operand(value)
-                print(element)
                 if element[1] == '#NUM':
                     self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(element[3]) + "," + str(
                         value) + ",   )\n"
@@ -186,8 +182,6 @@ class IntermediateCodeGenerator:
         element = self.find_by_addr(stack_address)
         index = self.symbol_table.index(element)
         self.symbol_table[index] = (element[0], element[1], None, element[3], 'func')
-        print('FUCK')
-        print(self.intermediate_code.split('\n').pop(-1))
         list_instruction = self.intermediate_code.split('\n')
         list_instruction.pop(-2)
         self.intermediate_code = "\n".join(list_instruction)
@@ -289,12 +283,12 @@ class IntermediateCodeGenerator:
 
     def assign_action(self, token):
         value, var = self.semantic_stack.pop(2)
+        var = self.find_operand(var)[3]
         value_holder = value
         value_element = self.find_operand(value)
         if value_element[4] == 'num':
             value = '#' + str(value_element[2])
         self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + ", " + str(var) + ",   )\n"
-        self.update_value(value_element[2], var)
         self.current_index += 1
         self.semantic_stack.push(value_holder)
 
@@ -336,10 +330,6 @@ class IntermediateCodeGenerator:
             except IndexError:
                 continue
 
-    def print_action(self, token):
-        num_args = self.semantic_stack.stack[-2]
-        func_address = self.semantic_stack.stack[-3 - num_args]
-        print(func_address)
 
     def label_action(self, token):
         self.semantic_stack.push(self.current_index)
