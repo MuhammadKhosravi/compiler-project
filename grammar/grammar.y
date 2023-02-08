@@ -60,9 +60,9 @@ switch_stmt: start_switch "switch" '('expression ')' fake_save '{' case_stmts de
 case_stmts: case_stmts case_stmt
 | /* epsilon */
 ;
-case_stmt: jpf_save "case" case_condition NUM save':' statement_list
+case_stmt: jp_case "case" case_condition NUM save':' statement_list
 ;
-default_stmt: jpf_save "default" ':' statement_list
+default_stmt: jp_case "default" ':' statement_list
 | /* epsilon */
 ;
 expression: var '=' expression
@@ -131,5 +131,7 @@ finish_exp: /* epsilon */
 case_condition: /* epsilon */
 ;
 fake_save: /* epsilon */
+;
+jp_case: /* epsilon */
 ;
 %%

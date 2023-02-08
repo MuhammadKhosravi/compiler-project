@@ -49,6 +49,7 @@ class IntermediateCodeGenerator:
             '45': self.arr_find_action,
             '81': self.fake_save_action,
             '36': self.switch_end_action,
+            '82': self.jp_case_action
 
         }
 
@@ -232,12 +233,13 @@ class IntermediateCodeGenerator:
         if token == 'default':
             self.current_index -= 1
         index, jump = self.semantic_stack.pop(2)
+        current_index = self.current_index + 1
+        if token == 'case':
+            current_index -= 1
         list_instructions = self.intermediate_code.split('\n')
         list_instructions.insert(index,
-                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index + 1) + ",  )\n")
+                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(current_index) + ",  )\n")
         self.semantic_stack.push(self.current_index)
-        if token == 'case':
-            self.semantic_stack.push(jump)
         self.current_index += 1
         self.intermediate_code = "\n".join(list_instructions)
 
@@ -344,10 +346,7 @@ class IntermediateCodeGenerator:
     def fake_save_action(self, token):
         temp = self.var_index
         self.var_index += 4
-        self.temp_values[temp] = 0
-        self.semantic_stack.push(temp)
-        self.semantic_stack.pop()
-        print(self.semantic_stack)
+        self.semantic_stack.push('#0')
         self.semantic_stack.push(self.current_index)
         self.current_index += 1
 
@@ -357,6 +356,7 @@ class IntermediateCodeGenerator:
         expression_result = self.semantic_stack.get_top()
         self.intermediate_code += str(self.current_index - 1) + f"\t(EQ, #{token}," + str(
             expression_result) + f", {temp})\n"
+        self.semantic_stack.push(temp)
 
     def finish_action(self, token):
         pass
@@ -381,3 +381,11 @@ class IntermediateCodeGenerator:
         self.intermediate_code = "\n".join(list_instructions)
         self.semantic_stack.pop()
         # self.current_index += 1
+
+    def jp_case_action(self, token):
+        index, jump = self.semantic_stack.pop(2)
+        list_instructions = self.intermediate_code.split('\n')
+        list_instructions.insert(index,
+                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index) + ",  )\n")
+        self.intermediate_code = "\n".join(list_instructions)
+        self.current_index += 1
