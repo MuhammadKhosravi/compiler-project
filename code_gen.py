@@ -48,7 +48,8 @@ class IntermediateCodeGenerator:
             '78': self.size_arr_action,  # done
             '45': self.arr_find_action,
             '81': self.fake_save_action,
-            '38': self.jpf_save_action
+            '38': self.jpf_save_action,
+            '36': self.switch_end_action,
 
         }
 
@@ -215,10 +216,12 @@ class IntermediateCodeGenerator:
         self.current_index += 1
 
     def jpf_save_action(self, token):
+        if token == 'default':
+            self.current_index -= 1
         index, jump = self.semantic_stack.pop(2)
         list_instructions = self.intermediate_code.split('\n')
         list_instructions.insert(index,
-                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index + 1) + ",  )")
+                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index + 1) + ",  )\n")
         self.semantic_stack.push(self.current_index)
         self.current_index += 1
         self.intermediate_code = "\n".join(list_instructions)
@@ -227,7 +230,7 @@ class IntermediateCodeGenerator:
         index, jump = self.semantic_stack.pop(2)
         list_instructions = self.intermediate_code.split('\n')
         list_instructions.insert(index,
-                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index) + ",  )")
+                                 str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index) + ",  )\n")
         self.intermediate_code = "\n".join(list_instructions)
 
     def jp_action(self, token):
@@ -308,7 +311,7 @@ class IntermediateCodeGenerator:
         list_instructions.insert(index,
                                  str(index) + "\t(ASSIGN, #" + str(value) + ", " + str(last_reference) + ",  )")
         list_instructions.insert(top,
-                                 str(top) + "\t(JPF, " + str(top_1) + ", " + str(self.current_index + 1) + ",  )")
+                                 str(top) + "\t(JPF, " + str(top_1) + ", " + str(self.current_index + 1) + ",  )\n")
         list_instructions.insert(self.current_index, str(self.current_index)
                                  + "\t(JP, " + str(top_2) + ",  " + ",  )\n")
         self.intermediate_code = "\n".join(list_instructions)
@@ -316,7 +319,7 @@ class IntermediateCodeGenerator:
 
     def break_action(self, token):
         last_reference, _ = self.reference_stack.get_top()
-        self.intermediate_code += str(self.current_index) + "\t(JP, @" + str(last_reference) + ",  " + ",  )"
+        self.intermediate_code += str(self.current_index) + "\t(JP, @" + str(last_reference) + ",  " + ",  )\n"
         self.current_index += 1
 
     def switch_action(self, token):
@@ -332,8 +335,9 @@ class IntermediateCodeGenerator:
         temp = self.var_index
         self.var_index += 4
         expression_result = self.semantic_stack.get_top()
-        self.intermediate_code += str(self.current_index) + f"\t(EQ, #{token}," + str(
-            expression_result) + f", {temp})"
+        self.intermediate_code += str(self.current_index - 1) + f"\t(EQ, #{token}," + str(
+            expression_result) + f", {temp})\n"
+
 
     def finish_action(self, token):
         pass
@@ -346,3 +350,15 @@ class IntermediateCodeGenerator:
 
     def relop_action(self, token):
         pass
+
+    def switch_end_action(self, token):
+        last_reference, index = self.reference_stack.pop()
+        self.temp_values[last_reference] = self.current_index + 1
+        value = self.temp_values[last_reference]
+        # top, top_1 = self.semantic_stack.pop(2)
+        list_instructions = self.intermediate_code.split('\n')
+        list_instructions.insert(index,
+                                 str(index) + "\t(ASSIGN, #" + str(value) + ", " + str(last_reference) + ",  )")
+        self.intermediate_code = "\n".join(list_instructions)
+        self.semantic_stack.pop()
+        # self.current_index += 1
