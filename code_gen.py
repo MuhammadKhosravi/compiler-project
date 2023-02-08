@@ -68,6 +68,7 @@ class IntermediateCodeGenerator:
         print('code is:\n', self.intermediate_code)
         print('token is', token)
         print('------------------------------------------------------------------------------------------------------')
+
     # element [0] is address in symbol table
     # element [1] is name
     # element [2] is value
@@ -145,8 +146,8 @@ class IntermediateCodeGenerator:
                 element = self.find_operand(value)
                 print(element)
                 if element[1] == '#NUM':
-                    self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + "," \
-                                              + str(element[3]) + ",   )\n"
+                    self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(element[3]) + "," + str(
+                        value) + ",   )\n"
                     self.current_index += 1
                 self.intermediate_code += str(
                     self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
@@ -332,7 +333,7 @@ class IntermediateCodeGenerator:
         self.current_index += 1
 
     def break_action(self, token):
-        _ ,last_reference= self.reference_stack.get_top()
+        _, last_reference = self.reference_stack.get_top()
         self.intermediate_code += str(self.current_index) + "\t(JP, @" + str(last_reference) + ",  " + ",  )\n"
         self.current_index += 1
 
@@ -349,6 +350,7 @@ class IntermediateCodeGenerator:
         print(self.semantic_stack)
         self.semantic_stack.push(self.current_index)
         self.current_index += 1
+
     def case_condition_action(self, token):
         temp = self.var_index
         self.var_index += 4
@@ -369,7 +371,7 @@ class IntermediateCodeGenerator:
         pass
 
     def switch_end_action(self, token):
-        index, last_reference= self.reference_stack.pop()
+        index, last_reference = self.reference_stack.pop()
         self.temp_values[last_reference] = self.current_index + 1
         value = self.temp_values[last_reference]
         # top, top_1 = self.semantic_stack.pop(2)
