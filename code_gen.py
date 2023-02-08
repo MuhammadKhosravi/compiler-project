@@ -162,7 +162,11 @@ class IntermediateCodeGenerator:
         element = self.find_by_addr(stack_address)
         index = self.symbol_table.index(element)
         self.symbol_table[index] = (element[0], element[1], None, element[3], 'func')
-        self.intermediate_code = "".join(self.intermediate_code.split('\n').pop(-1))
+        print('FUCK')
+        print(self.intermediate_code.split('\n').pop(-1))
+        list_instruction = self.intermediate_code.split('\n')
+        list_instruction.pop(-2)
+        self.intermediate_code = "\n".join(list_instruction)
         self.current_index -= 1
 
     def end_declare_var_action(self, token):
@@ -256,6 +260,9 @@ class IntermediateCodeGenerator:
         self.intermediate_code = "\n".join(list_instructions)
 
     def assign_action(self, token):
+        relop = self.semantic_stack.stack[-2]
+        if relop == '<' or relop == '==':
+          self.condition_action(token)
         value, var = self.semantic_stack.pop(2)
         value_holder = value
         value_element = self.find_operand(value)
