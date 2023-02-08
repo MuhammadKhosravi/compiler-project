@@ -92,9 +92,7 @@ class IntermediateCodeGenerator:
         address = self.semantic_stack.pop()
         arr = self.find_by_addr(address)
         index = arr[0]
-        print("COME ON")
-        print(self.intermediate_code.split('\n'))
-        #self.intermediate_code += "\n".join(.pop(-1))
+        self.intermediate_code = "\n".join(self.intermediate_code.split('\n').pop(-1))
         self.current_index -= 1
         for i in range(size):
             self.symbol_table.append((index, arr[1] + '[' + str(i) + ']', 0, self.var_index, 'arr'))
@@ -231,7 +229,7 @@ class IntermediateCodeGenerator:
             temp = [None, None, self.temp_values[address], address, None]
             return temp
         elif address in self.arr_vals:
-            temp = [None, None, self.temp_values[address], '@' + str(address), None]
+            temp = [None, None, self.arr_vals[address], '@' + str(address), None]
             return temp
         else:
             return self.find_by_addr(address)
@@ -295,7 +293,7 @@ class IntermediateCodeGenerator:
         value_element = self.find_operand(value)
         if value_element[4] == 'num':
             value = '#' + str(value_element[2])
-        self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + "," + str(var) + ",   )\n"
+        self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + ", " + str(var) + ",   )\n"
         self.update_value(value_element[2], var)
         self.current_index += 1
         self.semantic_stack.push(value_holder)
