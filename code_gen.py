@@ -62,7 +62,12 @@ class IntermediateCodeGenerator:
         # noinspection PyArgumentList
 
         action_function(**param)
-
+        print('current state is ', state)
+        print('current action is ', action_function.__name__)
+        print('stack is ', self.semantic_stack)
+        print('code is:\n', self.intermediate_code)
+        print('token is', token)
+        print('------------------------------------------------------------------------------------------------------')
     # element [0] is address in symbol table
     # element [1] is name
     # element [2] is value
@@ -115,6 +120,7 @@ class IntermediateCodeGenerator:
 
     # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
+        print(token)
         address = self.find_addr(token)
         try:
             index = self.symbol_table.index((address, token))
@@ -135,6 +141,13 @@ class IntermediateCodeGenerator:
             self.semantic_stack.pop(2)
             for i in range(self.func_args):
                 value = self.semantic_stack.pop()
+                print('VALUE IS', value)
+                element = self.find_operand(value)
+                print(element)
+                if element[1] == '#NUM':
+                    self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(value) + "," \
+                                              + str(element[3]) + ",   )\n"
+                    self.current_index += 1
                 self.intermediate_code += str(
                     self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
                 self.current_index += 1

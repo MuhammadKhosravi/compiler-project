@@ -29,7 +29,7 @@ class Parser:
         self.firsts = all_table_info['first']
         self.follows = all_table_info['follow']
         self.grammar = all_table_info['grammar']
-        print(self.grammar)
+       # print(self.grammar)
         self.scanner = scanner
         self.stack = Stack()
         self.action_function_dict = {'shift': self.shift, 'reduce': self.reduce, 'goto': self.goto,
@@ -59,7 +59,7 @@ class Parser:
                     current_action = None
 
             self.do_action(current_action, current_entry, self.current_token)
-
+          # print(stack)
             counter += 1
 
         self.write_intermediate_code_to_file(self.code_gen.intermediate_code)
@@ -181,7 +181,9 @@ class Parser:
             new_children.append(children[i])
         parent.add_children(new_children)
         self.stack.push(pointed_grammar[0])
+       # print(self.stack.get_top())
         current_entry = self.parse_table2[str(number_before_push)][str(self.stack.get_top())]
+      #  print(current_entry)
         self.stack.push(parent)
         self.stack.push(current_entry)
         self.need_new_token = False
