@@ -164,7 +164,7 @@ class IntermediateCodeGenerator:
                         value) + ",   )\n"
                     self.current_index += 1
                 self.intermediate_code += str(
-                    self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
+                    self.current_index) + "\t(PRINT, " + str(element[3]) + ", ,     )\n"
                 self.current_index += 1
             self.semantic_stack.pop()
         self.func_args = 0
