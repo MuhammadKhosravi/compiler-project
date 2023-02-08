@@ -91,7 +91,7 @@ class IntermediateCodeGenerator:
         address = self.semantic_stack.pop()
         arr = self.find_by_addr(address)
         index = arr[0]
-        self.intermediate_code = "\n".join(self.intermediate_code.split('\n').pop(-1))
+        self.intermediate_code += "\n".join(self.intermediate_code.split('\n').pop(-1))
         self.current_index -= 1
         for i in range(size):
             self.symbol_table.append((index, arr[1] + '[' + str(i) + ']', 0, self.var_index, 'arr'))
