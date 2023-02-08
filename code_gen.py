@@ -49,7 +49,7 @@ class IntermediateCodeGenerator:
             '45': self.arr_find_action,
             '81': self.fake_save_action,
             '36': self.switch_end_action,
-
+            '46': self.relop
         }
 
     def code_gen(self, state, token=None):
@@ -78,6 +78,8 @@ class IntermediateCodeGenerator:
         self.symbol_table.append((len(self.symbol_table), '#NUM', int(token), self.var_index, 'num'))
         self.semantic_stack.push(self.var_index)
         self.var_index += 4
+    def relop(self, token):
+        self.condition_action(token)
 
     def finish_exp_action(self, token):
         self.semantic_stack.pop()
@@ -142,7 +144,6 @@ class IntermediateCodeGenerator:
             self.semantic_stack.pop(2)
             for i in range(self.func_args):
                 value = self.semantic_stack.pop()
-                print('VALUE IS', value)
                 element = self.find_operand(value)
                 print(element)
                 if element[1] == '#NUM':
