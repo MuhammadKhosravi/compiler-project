@@ -48,7 +48,6 @@ class IntermediateCodeGenerator:
             '78': self.size_arr_action,  # done
             '45': self.arr_find_action,
             '81': self.fake_save_action,
-            '38': self.jpf_save_action,
             '36': self.switch_end_action,
 
         }
@@ -223,6 +222,8 @@ class IntermediateCodeGenerator:
         list_instructions.insert(index,
                                  str(index) + "\t(JPF, " + str(jump) + ", " + str(self.current_index + 1) + ",  )\n")
         self.semantic_stack.push(self.current_index)
+        if token == 'case':
+            self.semantic_stack.push(jump)
         self.current_index += 1
         self.intermediate_code = "\n".join(list_instructions)
 
@@ -298,12 +299,12 @@ class IntermediateCodeGenerator:
         self.semantic_stack.push(self.current_index)
         temp = self.var_index
         self.var_index += 4
-        self.reference_stack.push((temp, self.current_index))
+        self.reference_stack.push((self.current_index, temp))
         self.temp_values[temp] = 0
         self.current_index += 1
 
     def while_action(self, token):
-        last_reference, index = self.reference_stack.pop()
+        index, last_reference = self.reference_stack.pop()
         self.temp_values[last_reference] = self.current_index + 1
         value = self.temp_values[last_reference]
         top, top_1, top_2 = self.semantic_stack.pop(3)
@@ -318,26 +319,29 @@ class IntermediateCodeGenerator:
         self.current_index += 1
 
     def break_action(self, token):
-        last_reference, _ = self.reference_stack.get_top()
+        _ ,last_reference= self.reference_stack.get_top()
         self.intermediate_code += str(self.current_index) + "\t(JP, @" + str(last_reference) + ",  " + ",  )\n"
         self.current_index += 1
 
     def switch_action(self, token):
         self.label_action(token)
+        # self.semantic_stack.push(self.current_index)
 
     def fake_save_action(self, token):
         temp = self.var_index
         self.var_index += 4
         self.temp_values[temp] = 0
         self.semantic_stack.push(temp)
-
+        self.semantic_stack.pop()
+        print(self.semantic_stack)
+        self.semantic_stack.push(self.current_index)
+        self.current_index += 1
     def case_condition_action(self, token):
         temp = self.var_index
         self.var_index += 4
         expression_result = self.semantic_stack.get_top()
         self.intermediate_code += str(self.current_index - 1) + f"\t(EQ, #{token}," + str(
             expression_result) + f", {temp})\n"
-
 
     def finish_action(self, token):
         pass
@@ -352,7 +356,7 @@ class IntermediateCodeGenerator:
         pass
 
     def switch_end_action(self, token):
-        last_reference, index = self.reference_stack.pop()
+        index, last_reference= self.reference_stack.pop()
         self.temp_values[last_reference] = self.current_index + 1
         value = self.temp_values[last_reference]
         # top, top_1 = self.semantic_stack.pop(2)
