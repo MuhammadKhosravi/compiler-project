@@ -60,8 +60,6 @@ class IntermediateCodeGenerator:
             return
         param = {'token': token} if token is not None else {}
         action_function = self.actions[state]
-        if state == '64':
-            self.print_action(token)
         # noinspection PyArgumentList
         print('stack before ', self.semantic_stack)
         action_function(**param)
@@ -165,12 +163,8 @@ class IntermediateCodeGenerator:
                     self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(element[3]) + "," + str(
                         value) + ",   )\n"
                     self.current_index += 1
-                    self.intermediate_code += str(
-                        self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
-                else:
-                    self.intermediate_code += str(
-                        self.current_index) + "\t(PRINT, " + '@' + str(value) + ", ,     )\n"
-
+                self.intermediate_code += str(
+                    self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
                 self.current_index += 1
             self.semantic_stack.pop()
         self.func_args = 0
