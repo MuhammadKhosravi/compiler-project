@@ -3,7 +3,7 @@ from scanner import Scanner
 from Language.Programming_language import CMinus
 from my_parser import Parser
 # Set this variable to empty string before submitting the answer
-INPUT_PATH_PREFIX = "testcases/T11/"
+INPUT_PATH_PREFIX = "testcases/T9/"
 
 #INPUT_PATH_PREFIX = ""
 

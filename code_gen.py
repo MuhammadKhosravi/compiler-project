@@ -61,7 +61,7 @@ class IntermediateCodeGenerator:
         if state == '64':
             self.print_action(token)
         # noinspection PyArgumentList
-
+        print('stack before ', self.semantic_stack)
         action_function(**param)
         print('current state is ', state)
         print('current action is ', action_function.__name__)
@@ -90,7 +90,9 @@ class IntermediateCodeGenerator:
         address = self.semantic_stack.pop()
         arr = self.find_by_addr(address)
         index = arr[0]
-        self.intermediate_code += "\n".join(self.intermediate_code.split('\n').pop(-1))
+        print("COME ON")
+        print(self.intermediate_code.split('\n'))
+        #self.intermediate_code += "\n".join(.pop(-1))
         self.current_index -= 1
         for i in range(size):
             self.symbol_table.append((index, arr[1] + '[' + str(i) + ']', 0, self.var_index, 'arr'))
@@ -117,11 +119,26 @@ class IntermediateCodeGenerator:
         self.current_index += 1
 
     def arr_find_action(self, token):
+        print('Symbol_table:', self.symbol_table)
         index, start = self.semantic_stack.pop(2)
         index = self.find_operand(index)
-        address = start + (index[2] + 1) * 4
-        self.semantic_stack.push(address)
-
+        temp1 = self.var_index
+        self.var_index += 4
+        self.intermediate_code += str(self.current_index) + "\t(ADD, " + str(index[3])\
+                                  + ", " + "#1" + "," + str(temp1) + " )\n"
+        self.current_index += 1
+        temp2 = self.var_index
+        self.var_index += 4
+        self.intermediate_code += str(self.current_index) + "\t(MULT, " + str(temp1)\
+                                  + ", " + "#4" + "," + str(temp2) + " )\n"
+        self.current_index += 1
+        temp3 = self.var_index
+        self.var_index += 4
+        self.intermediate_code += str(self.current_index) + "\t(ADD, "+ str(temp2)\
+                                  + ", " + '#' + str(start) + "," + str(temp3) + " )\n"
+        self.current_index += 1
+        self.semantic_stack.push(temp3)
+        self.temp_values[temp3] = temp3
     # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
         print(token)
@@ -145,14 +162,19 @@ class IntermediateCodeGenerator:
             self.semantic_stack.pop(2)
             for i in range(self.func_args):
                 value = self.semantic_stack.pop()
+                print(value)
                 element = self.find_operand(value)
                 print(element)
                 if element[1] == '#NUM':
                     self.intermediate_code += str(self.current_index) + "\t(ASSIGN, " + str(element[3]) + "," + str(
                         value) + ",   )\n"
                     self.current_index += 1
-                self.intermediate_code += str(
-                    self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
+                    self.intermediate_code += str(
+                        self.current_index) + "\t(PRINT, " + str(value) + ", ,     )\n"
+                else:
+                    self.intermediate_code += str(
+                        self.current_index) + "\t(PRINT, " + '@' + str(value) + ", ,     )\n"
+
                 self.current_index += 1
             self.semantic_stack.pop()
         self.func_args = 0
