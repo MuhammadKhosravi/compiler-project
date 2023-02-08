@@ -43,7 +43,6 @@ class IntermediateCodeGenerator:
             '76': self.num_action,  # done
             '63': self.add_args_action,  # done
             '62': self.end_args_action,  # done
-            '77': self.condition_action,  # done
             '79': self.finish_exp_action,  # done
             '78': self.size_arr_action,  # done
             '45': self.arr_find_action,
@@ -264,9 +263,6 @@ class IntermediateCodeGenerator:
         self.intermediate_code = "\n".join(list_instructions)
 
     def assign_action(self, token):
-        relop = self.semantic_stack.stack[-2]
-        if relop == '<' or relop == '==':
-          self.condition_action(token)
         value, var = self.semantic_stack.pop(2)
         value_holder = value
         value_element = self.find_operand(value)
