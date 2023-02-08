@@ -15,6 +15,7 @@ class IntermediateCodeGenerator:
         self.temp_values = dict()
         self.func_args = 0
         self.reference_stack = Stack()
+        self.arr_vals = dict()
         self.states = {
 
         }
@@ -49,6 +50,7 @@ class IntermediateCodeGenerator:
             '81': self.fake_save_action,
             '36': self.switch_end_action,
             '82': self.jp_case_action,
+
 
             '46': self.relop
         }
@@ -138,7 +140,7 @@ class IntermediateCodeGenerator:
                                   + ", " + '#' + str(start) + "," + str(temp3) + " )\n"
         self.current_index += 1
         self.semantic_stack.push(temp3)
-        self.temp_values[temp3] = temp3
+        self.arr_vals[temp3] = temp3
     # initialize a variable by zero and give an address to it
     def declare_id_action(self, token):
         print(token)
@@ -227,6 +229,9 @@ class IntermediateCodeGenerator:
     def find_operand(self, address):
         if address in self.temp_values:
             temp = [None, None, self.temp_values[address], address, None]
+            return temp
+        elif address in self.arr_vals:
+            temp = [None, None, self.temp_values[address], '@' + str(address), None]
             return temp
         else:
             return self.find_by_addr(address)
