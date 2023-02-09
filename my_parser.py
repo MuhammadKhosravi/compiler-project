@@ -152,10 +152,9 @@ class Parser:
                 action, number = action_with_number.split('_')
             action_function = self.action_function_dict[action]
             action_function(number, current_token, name)
-        except:
-            # print(self.stack)
+        except Exception:
             self.handle_errors()
-            exit(10)
+            print('fuck you')
 
     def shift(self, number, current_token, name):
         self.stack.push(current_token)
